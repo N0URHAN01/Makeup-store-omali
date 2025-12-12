@@ -1,27 +1,36 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Om Ali</title>
-    @vite('resources/css/app.css')
-</head>
-<body class="bg-pink-50 text-gray-800">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <div class="min-h-screen flex flex-col">
-        <header class="bg-pink-600 text-white p-4 text-center text-2xl font-bold">
-            Om Ali Beauty Store
-        </header>
+        <title>{{ config('app.name', 'Laravel') }}</title>
 
-        <main class="flex-1">
-            @yield('content')
-        </main>
+        <!-- Fonts -->
+        <link rel="preconnect" href="https://fonts.bunny.net">
+        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
-        <footer class="bg-gray-900 text-white p-4 text-center">
-            &copy; 2025 Om Ali. All rights reserved.
-        </footer>
-    </div>
+        <!-- Scripts -->
+        @vite(['resources/css/app.css', 'resources/js/app.js'])
+    </head>
+    <body class="font-sans antialiased">
+        <div class="min-h-screen bg-gray-100">
+            @include('layouts.navigation')
 
-    @vite('resources/js/app.js')
-</body>
+            <!-- Page Heading -->
+            @isset($header)
+                <header class="bg-white shadow">
+                    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                        {{ $header }}
+                    </div>
+                </header>
+            @endisset
+
+            <!-- Page Content -->
+            <main>
+                {{ $slot }}
+            </main>
+        </div>
+    </body>
 </html>

@@ -10,7 +10,7 @@
     <nav class="bg-white shadow-md p-4 flex justify-between items-center">
         <h1 class="text-2xl font-bold text-pink-600">Om-Ali 💄</h1>
         <ul class="flex gap-6">
-            <li><a href="#" class="hover:text-pink-600">Home</a></li>
+            <li><a href="#" class="hover:text-pink-600">Dashboard</a></li>
             <li><a href="#" class="hover:text-pink-600">Products</a></li>
             <li><a href="#" class="hover:text-pink-600">About</a></li>
             <li><a href="#" class="hover:text-pink-600">Contact</a></li>
