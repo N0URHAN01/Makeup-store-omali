@@ -12,88 +12,80 @@ use App\Models\Governorate;
 
 class OrderController extends Controller
 {
-
-
-
+    /* ==============================
+        AJAX – Products by Category
+    ===============================*/
     public function getProductsByCategory($category_id)
-{
-    $products = Product::where('category_id', $category_id)->get();
+    {
+        return response()->json(
+            Product::where('category_id', $category_id)->get()
+        );
+    }
 
-    return response()->json($products);
-}
-
-    /**
-     * List all orders
-     */
+    /* ==============================
+        Orders List
+    ===============================*/
     public function index()
     {
         $orders = Order::with('items.product', 'governorate')
-                       ->latest()
-                       ->paginate(15);
+            ->latest()
+            ->paginate(15);
 
         return view('admin.orders.index', compact('orders'));
     }
 
-
-    /**
-     * Show form to create manual order
-     */
+    /* ==============================
+        Create Order
+    ===============================*/
     public function create()
     {
         return view('admin.orders.create', [
-            'categories' => Category::all(),
-            'products' => Product::all(),
-            'governorates' => Governorate::all()
+            'categories'   => Category::all(),
+            'products'     => Product::all(),
+            'governorates' => Governorate::all(),
         ]);
     }
 
-
-    /**
-     * Store new order
-     */
     public function store(Request $request)
     {
         $request->validate([
-            'customer_name'     => 'required',
-            'customer_phone1'   => 'required',
-            'customer_phone2'   => 'required',
-            'governorate_id'    => 'required|exists:governorates,id',
-            'items'             => 'required|array',
+            'customer_name'   => 'required',
+            'customer_phone1' => 'required',
+            'customer_phone2' => 'required',
+            'governorate_id'  => 'required|exists:governorates,id',
+            'items'           => 'required|array',
         ]);
 
-        // Create Order
         $order = Order::create([
-            'order_code'       => 'ORD-' . time(),
-            'customer_name'    => $request->customer_name,
-            'customer_email'   => $request->customer_email,
-            'customer_phone1'  => $request->customer_phone1,
-            'customer_phone2'  => $request->customer_phone2,
-            'notes'            => $request->notes,
-            'address'          => $request->address,
-            'governorate_id'   => $request->governorate_id,
+            'order_code'      => 'ORD-' . time(),
+            'customer_name'   => $request->customer_name,
+            'customer_email'  => $request->customer_email,
+            'customer_phone1' => $request->customer_phone1,
+            'customer_phone2' => $request->customer_phone2,
+            'notes'           => $request->notes,
+            'address'         => $request->address,
+            'governorate_id'  => $request->governorate_id,
+            'status'          => 'pending',
         ]);
 
-        // Add items
         $total = 0;
 
         foreach ($request->items as $item) {
-
             $product = Product::findOrFail($item['product_id']);
-            $price = $product->price;
+            $price   = $product->discounted_price ?? $product->price;
 
             $lineTotal = $price * $item['quantity'];
             $total += $lineTotal;
 
             OrderItem::create([
-                'order_id'  => $order->id,
-                'product_id'=> $product->id,
-                'quantity'  => $item['quantity'],
-                'price'     => $price,
-                'total'     => $lineTotal,
+                'order_id'   => $order->id,
+                'product_id' => $product->id,
+                'quantity'   => $item['quantity'],
+                'price'      => $price,
+                'total'      => $lineTotal,
             ]);
         }
 
-        // apply shipping price
         $shipping = Governorate::find($request->governorate_id)->shipping_cost;
 
         $order->update([
@@ -101,26 +93,23 @@ class OrderController extends Controller
             'total_price'   => $total + $shipping,
         ]);
 
-        return redirect()->route('admin.orders.index')
-                         ->with('success', 'Order created successfully.');
+        return redirect()
+            ->route('admin.orders.index')
+            ->with('success', 'Order created successfully.');
     }
 
-
-
-    /**
-     * Show order details
-     */
+    /* ==============================
+        Show Order
+    ===============================*/
     public function show($id)
     {
         $order = Order::with('items.product', 'governorate')->findOrFail($id);
-
         return view('admin.orders.show', compact('order'));
     }
 
-
-    /**
-     * Edit order (customer info + status)
-     */
+    /* ==============================
+        Edit Order
+    ===============================*/
     public function edit($id)
     {
         return view('admin.orders.edit', [
@@ -131,22 +120,21 @@ class OrderController extends Controller
         ]);
     }
 
-
-
-    /**
-     * Update order main data (not items)
-     */
+    /* ==============================
+        Update Order (FIXED)
+    ===============================*/
     public function update(Request $request, $id)
     {
-        $order = Order::findOrFail($id);
+        $order = Order::with('items')->findOrFail($id);
 
         $request->validate([
-            'customer_name' => 'required',
+            'customer_name'   => 'required',
             'customer_phone1' => 'required',
-            'governorate_id' => 'required|exists:governorates,id',
-            'status' => 'required|in:pending,confirmed,shipped,delivered,cancelled'
+            'governorate_id'  => 'required|exists:governorates,id',
+            'status'          => 'required|in:pending,confirmed,shipped,delivered,cancelled',
         ]);
 
+        /* ========= Update customer info ========= */
         $order->update($request->only([
             'customer_name',
             'customer_email',
@@ -155,87 +143,107 @@ class OrderController extends Controller
             'address',
             'notes',
             'governorate_id',
-            'status'
+            'status',
         ]));
 
-        // recalculate totals after governorate change
+        /* ========= Update items ONLY if pending ========= */
+        if ($order->status === 'pending' && $request->has('items')) {
+            foreach ($request->items as $itemId => $data) {
+                $item = OrderItem::where('order_id', $order->id)
+                    ->where('id', $itemId)
+                    ->first();
+
+                if ($item && isset($data['quantity'])) {
+                    $item->update([
+                        'quantity' => (int) $data['quantity'],
+                        'total'    => $item->price * (int) $data['quantity'],
+                    ]);
+                }
+            }
+        }
+
+        /* ========= Recalculate totals ========= */
         $this->recalculateOrderTotals($order);
 
-        return redirect()->route('admin.orders.show', $order->id)
-                         ->with('success', 'Order updated successfully.');
+        return redirect()
+            ->route('admin.orders.index')
+            ->with('success', 'Order updated successfully.');
     }
 
-
-    /**
-     * Delete order
-     */
+    /* ==============================
+        Delete Order
+    ===============================*/
     public function destroy($id)
     {
         Order::findOrFail($id)->delete();
 
-        return redirect()->route('admin.orders.index')
-                         ->with('success', 'Order deleted successfully.');
+        return redirect()
+            ->route('admin.orders.index')
+            ->with('success', 'Order deleted successfully.');
     }
 
-
-    /**
-     * Remove a single item from an order
-     */
+    /* ==============================
+        Order Items Actions
+    ===============================*/
     public function deleteItem($itemId)
     {
-        $item = OrderItem::findOrFail($itemId);
+        $item  = OrderItem::findOrFail($itemId);
         $order = $item->order;
 
-        $item->delete();
+        if (in_array($order->status, ['confirmed','shipped','delivered'])) {
+            abort(403);
+        }
 
+        $item->delete();
         $this->recalculateOrderTotals($order);
 
         return back()->with('success', 'Order item deleted.');
     }
 
-
-    /**
-     * Update quantity of item
-     */
     public function updateItemQuantity(Request $request, $itemId)
     {
         $item = OrderItem::findOrFail($itemId);
 
+        if (in_array($item->order->status, ['confirmed','shipped','delivered'])) {
+            abort(403);
+        }
+
         $request->validate([
-            'quantity' => 'required|integer|min:1'
+            'quantity' => 'required|integer|min:1',
         ]);
 
-        $item->quantity = $request->quantity;
-        $item->total = $item->quantity * $item->price;
-        $item->save();
+        $item->update([
+            'quantity' => $request->quantity,
+            'total'    => $request->quantity * $item->price,
+        ]);
 
         $this->recalculateOrderTotals($item->order);
 
         return back()->with('success', 'Item updated.');
     }
 
-
-    /**
-     * Add new item to order
-     */
     public function addItem(Request $request, $orderId)
     {
         $order = Order::findOrFail($orderId);
 
+        if (in_array($order->status, ['confirmed','shipped','delivered'])) {
+            abort(403);
+        }
+
         $request->validate([
             'product_id' => 'required|exists:products,id',
-            'quantity'   => 'required|integer|min:1'
+            'quantity'   => 'required|integer|min:1',
         ]);
 
-        $product = Product::find($request->product_id);
-        $price = $product->price;
+        $product = Product::findOrFail($request->product_id);
+        $price   = $product->discounted_price ?? $product->price;
 
         OrderItem::create([
-            'order_id'  => $order->id,
-            'product_id'=> $product->id,
-            'quantity'  => $request->quantity,
-            'price'     => $price,
-            'total'     => $price * $request->quantity,
+            'order_id'   => $order->id,
+            'product_id' => $product->id,
+            'quantity'   => $request->quantity,
+            'price'      => $price,
+            'total'      => $price * $request->quantity,
         ]);
 
         $this->recalculateOrderTotals($order);
@@ -243,15 +251,21 @@ class OrderController extends Controller
         return back()->with('success', 'Item added.');
     }
 
-
-    /**
-     * Helper function – Recalculate totals for order
-     */
+    /* ==============================
+        Helper – Recalculate Totals
+    ===============================*/
     private function recalculateOrderTotals(Order $order)
     {
-        $totalItems = $order->items()->sum('total');
-        $shipping = $order->governorate->shipping_cost;
+        $order->load('items', 'governorate');
 
+        $totalItems = $order->items->sum('total');
+
+
+       if (in_array($order->status, ['confirmed','shipped','delivered'])) {
+            $shipping = $order->shipping_cost;
+        } else {
+            $shipping = $order->governorate->shipping_cost ?? 0;
+        }
         $order->update([
             'shipping_cost' => $shipping,
             'total_price'   => $totalItems + $shipping,

@@ -1,28 +1,48 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ProfileController;
 
-
-
-
-
+// Admin Controllers
 use App\Http\Controllers\Admin\AdminAuthController;
-use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\GovernorateController;
+use App\Http\Controllers\Admin\DashboardController;
 
 
-Route::get('/', function () {
-    return view('welcome');
-});
+use App\Http\Controllers\Customer\HomeController;
+use App\Http\Controllers\Customer\CategoryController as CustomerCategoryController;
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+*/
 
-Route::middleware('auth')->group(function () {
+// Public Routes
+
+// Route::get('/', function () {
+//     return view('customer.home.index');
+// });
+Route::get('/', [HomeController::class, 'index'])->name('home');
+
+Route::get('/categories/{slug}', [CustomerCategoryController::class, 'show'])
+    ->name('categories.show');
+
+    Route::get('/categories', [CustomerCategoryController::class, 'index'])
+        ->name('categories.index');
+
+
+
+// User dashboard (authenticated)
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/dashboard', function () {
+        return view('dashboard');
+    })->name('dashboard');
+
+    // Profile management
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
@@ -30,70 +50,40 @@ Route::middleware('auth')->group(function () {
 
 require __DIR__.'/auth.php';
 
-// Admin Routes
-// Admin login routes
-// Route::get('admin/login', [AdminAuthController::class, 'showLoginForm'])->name('admin.login');
-// Route::post('admin/login', [AdminAuthController::class, 'login'])->name('admin.login.submit');
+/*
+|--------------------------------------------------------------------------
+| Admin Routes
+|--------------------------------------------------------------------------
+*/
 
-// // Protected routes (only logged-in admins can access)
-// Route::middleware('auth:admin')->group(function () {
-//     Route::get('admin/dashboard', [AdminAuthController::class, 'dashboard'])->name('admin.dashboard');
-//     Route::post('admin/logout', [AdminAuthController::class, 'logout'])->name('admin.logout');
-
-//       // ✅ Admin Category Routes (protected)
-//     Route::resource('categories', CategoryController::class);
-    
-// });
-
-//Admin Category Routes
-// Route::prefix('admin')->name('admin.')->group(function () {
-//     Route::resource('categories', CategoryController::class);
-// });
-
-// Admin Routes
-// Admin login routes
+// Admin login (public)
 Route::get('admin/login', [AdminAuthController::class, 'showLoginForm'])->name('admin.login');
 Route::post('admin/login', [AdminAuthController::class, 'login'])->name('admin.login.submit');
 
-// Protected routes (only logged-in admins can access)
+// Admin protected routes
 Route::middleware('auth:admin')->prefix('admin')->name('admin.')->group(function () {
-    Route::get('dashboard', [AdminAuthController::class, 'dashboard'])->name('dashboard');
+
+    // Dashboard
+    Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    // Logout
     Route::post('logout', [AdminAuthController::class, 'logout'])->name('logout');
 
-    // ✅ Admin Category Routes (protected)
-    Route::resource('categories', CategoryController::class);
-
-    // ✅ Admin Product Routes (protected)
+    // Categories
+    //Route::resource('categories', CategoryController::class);
+    Route::resource('categories', AdminCategoryController::class);
+    // Products
     Route::resource('products', ProductController::class);
-    //  Route::delete('products/image/{id}', [ProductController::class, 'deleteImage'])->name('products.image.delete');
     Route::delete('products/delete-image/{id}', [ProductController::class, 'deleteImage'])->name('products.delete-image');
- 
-    Route::delete('products/variant/{id}', [ProductController::class, 'deleteVariant'])
-    ->name('products.variant.delete');
+    Route::delete('products/variant/{id}', [ProductController::class, 'deleteVariant'])->name('products.variant.delete');
+    Route::delete('products/delete-variant-image/{id}', [ProductController::class, 'deleteVariantImage'])->name('products.delete-variant-image');
 
-   
-// Delete variant image (AJAX)
-//Route::delete('/admin/products/delete-variant-image/{id}', [ProductController::class, 'deleteVariantImage'])->name('admin.products.deleteVariantImage');
+    // Orders
+    Route::resource('orders', OrderController::class);
+    Route::get('orders/get-products/{category_id}', [OrderController::class, 'getProductsByCategory'])->name('orders.getProducts');
+    Route::delete('orders/item/{item}', [OrderController::class, 'deleteItem'])->name('orders.deleteItem');
+    Route::post('orders/{order}/add-item', [OrderController::class, 'addItem'])->name('orders.addItem');
 
-Route::delete('products/delete-variant-image/{id}', [ProductController::class, 'deleteVariantImage'])
-    ->name('products.delete-variant-image'); 
-    // Admin Order Routes (protected)
-    
-    Route::resource('orders', \App\Http\Controllers\Admin\OrderController::class);
-
-    // Admin Governorate Routes (protected)
+    // Governorates
     Route::resource('governorates', GovernorateController::class);
-
-
-  //  Route::get('/get-products', [ProductController::class, 'getProducts']);
-
-//   Route::get('/admin/products/by-category/{category}', [ProductController::class, 'getByCategory'])
-//     ->name('products.byCategory');
-
-Route::get('admin/orders/get-products/{category_id}', 
-    [App\Http\Controllers\Admin\OrderController::class, 'getProductsByCategory']
-)->name('admin.orders.getProducts');
-
-
-
 });
