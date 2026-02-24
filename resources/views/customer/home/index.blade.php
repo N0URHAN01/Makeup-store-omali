@@ -19,5 +19,8 @@
     {{-- Categories --}}
     @include('customer.home.sections.categories')
 
+    {{-- Products Section --}}
+   @include('customer.home.sections.products')
+
 </body>
 </html>

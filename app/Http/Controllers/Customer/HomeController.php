@@ -14,6 +14,10 @@ class HomeController extends Controller
             ->with('children')
             ->get();
 
-        return view('customer.home.index', compact('categories'));
+              $featuredProducts = Product::latest()
+        ->take(12)
+        ->get();
+        
+        return view('customer.home.index', compact('categories', 'featuredProducts'));
     }
 }

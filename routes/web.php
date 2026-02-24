@@ -6,14 +6,17 @@ use App\Http\Controllers\ProfileController;
 // Admin Controllers
 use App\Http\Controllers\Admin\AdminAuthController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
-use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\GovernorateController;
 use App\Http\Controllers\Admin\DashboardController;
 
-
+// Customer Controllers
 use App\Http\Controllers\Customer\HomeController;
 use App\Http\Controllers\Customer\CategoryController as CustomerCategoryController;
+use App\Http\Controllers\Customer\ProductController as CustomerProductController;
+use App\Http\Controllers\Customer\CartController;
+use App\Http\Controllers\Customer\CheckoutController;
 
 /*
 |--------------------------------------------------------------------------
@@ -23,18 +26,43 @@ use App\Http\Controllers\Customer\CategoryController as CustomerCategoryControll
 
 // Public Routes
 
-// Route::get('/', function () {
-//     return view('customer.home.index');
-// });
-Route::get('/', [HomeController::class, 'index'])->name('home');
 
+Route::get('/', [HomeController::class, 'index'])->name('home');
+//customer  Categories
 Route::get('/categories/{slug}', [CustomerCategoryController::class, 'show'])
     ->name('categories.show');
-
     Route::get('/categories', [CustomerCategoryController::class, 'index'])
         ->name('categories.index');
 
+  //customer  Products
+Route::get('/products', [CustomerProductController::class, 'index'])->name('products.index');        // all products page
+Route::get('/products/{product}', [CustomerProductController::class, 'show'])->name('products.show'); // product details
 
+/*
+|--------------------------------------------------------------------------
+| Cart
+|--------------------------------------------------------------------------
+*/
+Route::prefix('cart')->name('cart.')->group(function () {
+    Route::get('/', [CartController::class, 'index'])->name('index');
+    Route::post('/add', [CartController::class, 'add'])->name('add');
+    Route::patch('/update', [CartController::class, 'update'])->name('update'); // set quantity
+    Route::post('/increment', [CartController::class, 'increment'])->name('increment');
+    Route::post('/decrement', [CartController::class, 'decrement'])->name('decrement');
+    Route::delete('/remove', [CartController::class, 'remove'])->name('remove');
+    Route::delete('/clear', [CartController::class, 'clear'])->name('clear');
+
+    // optional for ajax badge
+    Route::get('/count', [CartController::class, 'count'])->name('count');
+});
+/*
+|--------------------------------------------------------------------------
+| Checkout / Orders (Customer)
+|--------------------------------------------------------------------------
+*/
+Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
+Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
+Route::get('/checkout/success/{order:order_code}', [CheckoutController::class, 'success'])->name('checkout.success');
 
 // User dashboard (authenticated)
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -73,10 +101,10 @@ Route::middleware('auth:admin')->prefix('admin')->name('admin.')->group(function
     //Route::resource('categories', CategoryController::class);
     Route::resource('categories', AdminCategoryController::class);
     // Products
-    Route::resource('products', ProductController::class);
-    Route::delete('products/delete-image/{id}', [ProductController::class, 'deleteImage'])->name('products.delete-image');
-    Route::delete('products/variant/{id}', [ProductController::class, 'deleteVariant'])->name('products.variant.delete');
-    Route::delete('products/delete-variant-image/{id}', [ProductController::class, 'deleteVariantImage'])->name('products.delete-variant-image');
+    Route::resource('products', AdminProductController::class);
+    Route::delete('products/delete-image/{id}', [AdminProductController::class, 'deleteImage'])->name('products.delete-image');
+    Route::delete('products/variant/{id}', [AdminProductController::class, 'deleteVariant'])->name('products.variant.delete');
+    Route::delete('products/delete-variant-image/{id}', [AdminProductController::class, 'deleteVariantImage'])->name('products.delete-variant-image');
 
     // Orders
     Route::resource('orders', OrderController::class);

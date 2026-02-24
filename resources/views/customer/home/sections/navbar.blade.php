@@ -26,14 +26,29 @@
             </div>
 
             {{-- Actions --}}
-            <div class="flex items-center gap-3">
+            <!-- <div class="flex items-center gap-3">
                 {{-- Cart --}}
                 <button class="relative inline-flex items-center justify-center w-10 h-10 rounded-full bg-pink-50 hover:bg-pink-100 transition">
                     <span class="text-lg">🛍️</span>
                     <span class="absolute -top-1 -right-1 bg-pink-600 text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full font-bold">
                         0
                     </span>
-                </button>
+                </button> -->
+                <a href="{{ route('cart.index') }}" class="relative inline-flex items-center">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-800"
+         fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round"
+              d="M5 8h14l-1 12H6L5 8z"/>
+        <path stroke-linecap="round" stroke-linejoin="round"
+              d="M9 8V7a3 3 0 016 0v1"/>
+    </svg>
+
+    <span id="cart-count"
+          class="absolute -top-2 -right-2 bg-pink-600 text-white
+                 text-[10px] font-bold rounded-full px-1.5 py-0.5">
+        0
+    </span>
+</a>
 
                 {{-- Mobile Menu Button --}}
                 <button id="menuBtn" class="md:hidden w-10 h-10 rounded-full bg-gray-50 hover:bg-gray-100 transition text-xl">
