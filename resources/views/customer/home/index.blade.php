@@ -1,17 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+@extends('customer.layouts.app')
 
-    <meta charset="UTF-8">
-    <title> Home</title>
+@section('title','Home')
 
-    @vite('resources/css/app.css')
-</head>
-<body class="bg-white">
-
-    {{-- Navbar --}}
-    @include('customer.home.sections.navbar')
+@section('content')
 
     {{-- Hero --}}
     @include('customer.home.sections.hero')
@@ -20,7 +11,6 @@
     @include('customer.home.sections.categories')
 
     {{-- Products Section --}}
-   @include('customer.home.sections.products')
+    @include('customer.home.sections.products')
 
-</body>
-</html>
+@endsection

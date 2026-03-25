@@ -48,12 +48,9 @@ class CheckoutController extends Controller
             'address'         => ['required','string','max:2000'],
         ]);
 
-        // ⚠️ مهم: حدد اسم عمود الشحن في جدول المحافظات عندك
-        // هنا افترضت `shipping_cost`، لو عندك اسم مختلف غيره.
         $gov = Governorate::findOrFail($data['governorate_id']);
         $shipping = (float) ($gov->shipping_cost ?? 0);
 
-        // إعادة التحقق من الأسعار/الستوك من DB (أفضل ممارسة)
         $subtotal = 0;
 
         DB::beginTransaction();
@@ -106,13 +103,12 @@ class CheckoutController extends Controller
                     'total'      => $lineTotal,
                 ]);
 
-                // خصم من المخزون
                 $product->decrement('stock', $qty);
             }
 
             DB::commit();
 
-            // فضي السلة
+           
             session()->forget('cart');
 
             return redirect()->route('checkout.success', $order->order_code);
@@ -125,8 +121,8 @@ class CheckoutController extends Controller
 
     public function success(Order $order)
     {
-        // $order وصل بـ route model binding عن طريق order_code
-        $order->load('items.product'); // لو العلاقات موجودة
+      
+        $order->load('items.product'); 
         return view('customer.checkout.success', compact('order'));
     }
 }

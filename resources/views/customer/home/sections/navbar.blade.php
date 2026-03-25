@@ -1,3 +1,22 @@
+<script>
+function loadCartCount() {
+    fetch("{{ route('cart.count') }}")
+        .then(response => response.json())
+        .then(data => {
+            const badge = document.getElementById('cart-count');
+            if (badge) {
+                badge.innerText = data.count;
+                badge.style.display = data.count > 0 ? 'flex' : 'none';
+            }
+        })
+        .catch(error => console.log(error));
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    loadCartCount();
+});
+</script>
+
 <nav class="fixed w-full z-50 bg-white/80 backdrop-blur-md border-b border-pink-50">
     <div class="max-w-7xl mx-auto px-4 sm:px-6">
         <div class="flex justify-between items-center h-16">

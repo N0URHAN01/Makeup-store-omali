@@ -10,7 +10,7 @@
 <body class="bg-white">
 
     {{-- Navbar --}}
-    @include('customer.home.sections.navbar')
+    @include('customer.home.sections.navbar')                              
 
     {{-- Page Header --}}
     <section class="bg-pink-50">

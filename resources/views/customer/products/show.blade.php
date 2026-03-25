@@ -1,3 +1,5 @@
+
+    @extends('customer.layouts.app')
 <!DOCTYPE html>
 <html lang="en" dir="auto">
 <head>
@@ -7,8 +9,10 @@
     @vite('resources/css/app.css')
 </head>
 
+
 <body class="min-h-screen bg-gradient-to-b from-pink-50/70 via-white to-white text-gray-900">
     {{-- Navbar --}}
+
     @include('customer.home.sections.navbar')
 
     {{-- Soft background glow --}}
@@ -201,23 +205,46 @@
                         @endif
 
                         {{-- Actions --}}
-                        <div class="mt-8 flex flex-col sm:flex-row gap-3">
+                        <!-- <div class="mt-8 flex flex-col sm:flex-row gap-3">
                             <button
+                            onclick="addToCart({{ $product->id }})"
                                 class="flex-1 inline-flex items-center justify-center gap-2 rounded-2xl
                                        bg-gradient-to-r from-pink-600 to-fuchsia-600
                                        hover:from-pink-700 hover:to-fuchsia-700
                                        text-white font-extrabold py-3.5 shadow-lg shadow-pink-200/70 transition active:scale-[0.99]">
                                 <span>🛍️</span>
                                 Add to Cart
-                            </button>
+                            </button> -->
 
-                            <a href="{{ url()->previous() }}"
-                               class="sm:w-28 inline-flex items-center justify-center rounded-2xl
-                                      border border-gray-200 bg-white hover:bg-gray-50
-                                      font-extrabold text-gray-700 py-3.5 transition">
-                                Back
-                            </a>
-                        </div>
+
+                          <div class="mt-8 flex flex-col sm:flex-row gap-3">
+
+<form class="add-to-cart-form flex-1">
+    @csrf
+
+    <input type="hidden" name="product_id" value="{{ $product->id }}">
+    <input type="hidden" name="qty" value="1">
+
+    <button type="submit"
+        class="add-to-cart-btn w-full inline-flex items-center justify-center gap-2 rounded-2xl
+        bg-gradient-to-r from-pink-600 to-fuchsia-600
+        hover:from-pink-700 hover:to-fuchsia-700
+        text-white font-extrabold py-3.5 shadow-lg shadow-pink-200/70 transition active:scale-[0.99]">
+
+        <span>🛍️</span>
+        Add to Cart
+
+    </button>
+</form>
+
+<a href="{{ url()->previous() }}"
+   class="sm:w-28 inline-flex items-center justify-center rounded-2xl
+   border border-gray-200 bg-white hover:bg-gray-50
+   font-extrabold text-gray-700 py-3.5 transition">
+    Back
+</a>
+
+</div>
 
                         {{-- Note --}}
                         <p class="mt-4 text-xs text-gray-500">

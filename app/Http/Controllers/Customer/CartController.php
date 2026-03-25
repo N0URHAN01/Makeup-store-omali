@@ -37,7 +37,7 @@ class CartController extends Controller
     {
         $data = $request->validate([
             'product_id' => ['required','integer','exists:products,id'],
-            'variant_id' => ['nullable','integer'], // لو عندك variants فعلاً
+            'variant_id' => ['nullable','integer'], 
             'qty'        => ['nullable','integer','min:1','max:50'],
         ]);
 
@@ -46,10 +46,8 @@ class CartController extends Controller
         $qty = (int)($data['qty'] ?? 1);
         $variantId = $data['variant_id'] ?? null;
 
-        // سعر وقت الإضافة (لو خصم استخدم discounted_price)
         $price = (float) ($product->discount_percentage > 0 ? $product->discounted_price : $product->price);
 
-        // حماية: ما تزودش عن الستوك
         $maxQty = max(0, (int)$product->stock);
         if ($maxQty <= 0) {
             return back()->with('error', 'This product is out of stock.');

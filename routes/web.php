@@ -46,7 +46,7 @@ Route::get('/products/{product}', [CustomerProductController::class, 'show'])->n
 Route::prefix('cart')->name('cart.')->group(function () {
     Route::get('/', [CartController::class, 'index'])->name('index');
     Route::post('/add', [CartController::class, 'add'])->name('add');
-    Route::patch('/update', [CartController::class, 'update'])->name('update'); // set quantity
+    Route::patch('/update', [CartController::class, 'update'])->name('update'); 
     Route::post('/increment', [CartController::class, 'increment'])->name('increment');
     Route::post('/decrement', [CartController::class, 'decrement'])->name('decrement');
     Route::delete('/remove', [CartController::class, 'remove'])->name('remove');
