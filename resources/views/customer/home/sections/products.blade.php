@@ -1,59 +1,4 @@
-<script>
-document.addEventListener("DOMContentLoaded", function(){
 
-    document.querySelectorAll(".add-to-cart-form").forEach(function(form){
-
-        form.addEventListener("submit", function(e){
-
-            e.preventDefault();
-
-            const button = this.querySelector(".add-to-cart-btn");
-            const formData = new FormData(this);
-
-            button.disabled = true; 
-            button.innerText = "Adding...";
-
-            fetch("{{ route('cart.add') }}", {
-
-                method: "POST",
-
-                headers: {
-                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
-                },
-
-                body: formData
-
-            })
-            .then(response => response.text())
-
-            .then(() => {
-
-                showToast("Added to cart successfully");
-
-                button.disabled = false;
-                button.innerText = "Add to cart";
-                
-                 //  Navbar count 
-                   if (typeof loadCartCount === "function") {
-                     loadCartCount();}
-                  })
-            .catch((error) => {
-
-                console.error(error);
-
-                showToast("Something went wrong","error");
-
-                button.disabled = false;
-                button.innerText = "Add to cart";
-
-            });
-
-        });
-
-    });
-
-});
-</script>
 <section id="products" class="bg-white">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 py-14">
 
@@ -185,27 +130,7 @@ document.addEventListener("DOMContentLoaded", function(){
                             {{-- Add to cart fixed bottom --}}
                             <div class="mt-auto pt-4">
                                 @if($product->stock > 0)
-                                   <!-- <form action="{{ route('cart.add') }}" method="POST">
-    @csrf
-
-    <input type="hidden" name="product_id" value="{{ $product->id }}">
-    <input type="hidden" name="qty" value="1">
-
-    <button type="submit"
-            class="w-full inline-flex items-center justify-center gap-2
-                   rounded-2xl px-4 py-3
-                   bg-pink-600 text-white text-sm font-semibold
-                   hover:bg-pink-700 transition shadow-sm">
-
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
-             viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M5 8h14l-1 12H6L5 8z"/>
-            <path stroke-linecap="round" stroke-linejoin="round" d="M9 8V7a3 3 0 016 0v1"/>
-        </svg>
-
-        Add to cart
-    </button>
-</form> -->
+                                  
 
 <form class="add-to-cart-form">
     @csrf
