@@ -17,6 +17,7 @@ use App\Http\Controllers\Customer\CategoryController as CustomerCategoryControll
 use App\Http\Controllers\Customer\ProductController as CustomerProductController;
 use App\Http\Controllers\Customer\CartController;
 use App\Http\Controllers\Customer\CheckoutController;
+use App\Http\Controllers\Customer\OrderTrackingController;
 
 /*
 |--------------------------------------------------------------------------
@@ -38,6 +39,12 @@ Route::get('/categories/{slug}', [CustomerCategoryController::class, 'show'])
 Route::get('/products', [CustomerProductController::class, 'index'])->name('products.index');        // all products page
 Route::get('/products/{product}', [CustomerProductController::class, 'show'])->name('products.show'); // product details
 
+
+// Order tracking
+Route::get('/order/track', [OrderTrackingController::class, 'index'])
+    ->name('order.track');
+Route::post('/order/{order}/cancel', [OrderTrackingController::class, 'cancel'])
+    ->name('order.cancel');
 /*
 |--------------------------------------------------------------------------
 | Cart

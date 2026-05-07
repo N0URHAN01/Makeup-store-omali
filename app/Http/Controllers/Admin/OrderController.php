@@ -9,6 +9,7 @@ use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\Category;
 use App\Models\Governorate;
+use App\Enums\OrderStatus;
 
 class OrderController extends Controller
 {
@@ -116,7 +117,7 @@ class OrderController extends Controller
             'order'        => Order::with('items.product')->findOrFail($id),
             'products'     => Product::all(),
             'governorates' => Governorate::all(),
-            'statuses'     => ['pending','confirmed','shipped','delivered','cancelled'],
+            'statuses'     => OrderStatus::all(),
         ]);
     }
 
@@ -131,7 +132,7 @@ class OrderController extends Controller
             'customer_name'   => 'required',
             'customer_phone1' => 'required',
             'governorate_id'  => 'required|exists:governorates,id',
-            'status'          => 'required|in:pending,confirmed,shipped,delivered,cancelled',
+            'status'          => 'required|in:' . implode(',', OrderStatus::all()),
         ]);
 
         /* ========= Update customer info ========= */

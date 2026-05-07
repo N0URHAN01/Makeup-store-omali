@@ -1,6 +1,3 @@
-
-
-
 @php
     $hasDiscount = $product->discount_percentage > 0;
     $discountText = rtrim(rtrim(number_format($product->discount_percentage, 2), '0'), '.');

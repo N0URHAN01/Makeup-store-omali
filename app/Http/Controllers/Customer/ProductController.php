@@ -14,7 +14,7 @@ class ProductController extends Controller
     {
         $products = Product::with('category')
             ->latest()
-            ->paginate(12);
+            ->paginate(24);
 
         return view('customer.products.index', compact('products'));
     }

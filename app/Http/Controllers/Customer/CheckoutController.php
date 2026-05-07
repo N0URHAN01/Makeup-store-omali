@@ -41,12 +41,22 @@ class CheckoutController extends Controller
         $data = $request->validate([
             'customer_name'   => ['required','string','max:255'],
             'customer_email'  => ['nullable','email','max:255'],
-            'customer_phone1' => ['required','string','max:30'],
-            'customer_phone2' => ['nullable','string','max:30'],
+            'customer_phone1' => ['required','regex:/^01[0-9]{9}$/'],
+            'customer_phone2' => ['nullable','regex:/^01[0-9]{9}$/'],
             'notes'           => ['nullable','string'],
             'governorate_id'  => ['required','exists:governorates,id'],
             'address'         => ['required','string','max:2000'],
-        ]);
+        ] , [
+        'customer_name.required' => 'Please enter your name',
+        'customer_phone1.required' => 'Phone number is required',
+        'customer_phone1.regex' => 'Phone must be 11 digits and start with 01',
+        'customer_phone2.regex' => 'Phone must be 11 digits and start with 01',
+        'governorate_id.required' => 'Please select your governorate',
+        'address.required' => 'Please enter your address',
+        ]
+    
+    
+    );
 
         $gov = Governorate::findOrFail($data['governorate_id']);
         $shipping = (float) ($gov->shipping_cost ?? 0);
