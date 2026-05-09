@@ -23,6 +23,7 @@
     <div id="toast-container"
          class="fixed bottom-6 right-6 z-50 space-y-3"></div>
 
+    {{-- ================= TOAST ================= --}}
     <script>
         function showToast(message, type = "success") {
 
@@ -50,62 +51,118 @@
         }
     </script>
 
+    {{-- ================= MAIN SCRIPT ================= --}}
+    <script>
+    document.addEventListener("DOMContentLoaded", function(){
 
+        // ================= VARIANTS =================
+        const variantBtns = document.querySelectorAll('.variant-btn');
+        const selectedVariantInput = document.getElementById('selectedVariant');
+        const variantError = document.getElementById('variantError');
 
-<script>
-document.addEventListener("DOMContentLoaded", function(){
+        variantBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
 
-    document.querySelectorAll(".add-to-cart-form").forEach(function(form){
+                // remove active
+                variantBtns.forEach(b => b.classList.remove('ring-2', 'ring-pink-500'));
 
-        form.addEventListener("submit", function(e){
+                // add active
+                btn.classList.add('ring-2', 'ring-pink-500');
 
-            e.preventDefault();
-
-            const button = this.querySelector(".add-to-cart-btn");
-            const formData = new FormData(this);
-
-            button.disabled = true;
-            button.innerText = "Adding...";
-
-            fetch("{{ route('cart.add') }}", {
-                method: "POST",
-                headers: {
-                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
-                },
-                body: formData
-            })
-
-            .then(response => response.text())
-
-            .then(() => {
-
-                showToast("Added to cart successfully");
-
-                button.disabled = false;
-                button.innerText = "Add to cart";
-
-                if (typeof loadCartCount === "function") {
-                    loadCartCount();
+                // set selected
+                if (selectedVariantInput) {
+                    selectedVariantInput.value = btn.dataset.id;
                 }
 
-            })
+                // hide error
+                variantError?.classList.add('hidden');
 
-            .catch((error) => {
+                // change main image (if exists)
+                const mainImage = document.getElementById('mainImage');
+                const lightboxImage = document.getElementById('lightboxImage');
 
-                console.error(error);
+                if (btn.dataset.image && mainImage) {
+                    mainImage.src = btn.dataset.image;
+                }
 
-                showToast("Something went wrong","error");
+                if (btn.dataset.image && lightboxImage) {
+                    lightboxImage.src = btn.dataset.image;
+                }
+            });
+        });
 
-                button.disabled = false;
-                button.innerText = "Add to cart";
+
+        // ================= ADD TO CART =================
+        document.querySelectorAll(".add-to-cart-form").forEach(function(form){
+
+            form.addEventListener("submit", function(e){
+
+                const variantBtns = document.querySelectorAll('.variant-btn');
+                const variantInput = this.querySelector('#selectedVariant');
+                const variantError = document.getElementById('variantError');
+
+                // ✅ VALIDATION
+                if (variantBtns.length > 0 && variantInput && !variantInput.value) {
+                    e.preventDefault();
+
+                    variantError?.classList.remove('hidden');
+
+                    document.getElementById('variantsContainer')
+                        ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+                    showToast("Please select a color first", "error");
+
+                    return;
+                }
+
+                e.preventDefault();
+
+                const button = this.querySelector(".add-to-cart-btn");
+                const formData = new FormData(this);
+
+                button.disabled = true;
+                button.innerText = "Adding...";
+
+                fetch("{{ route('cart.add') }}", {
+                    method: "POST",
+                    headers: {
+                        "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                    },
+                    body: formData
+                })
+
+                .then(response => response.text())
+
+                .then(() => {
+
+                    showToast("Added to cart successfully");
+
+                    button.disabled = false;
+                    button.innerText = "Add to cart";
+
+                    if (typeof loadCartCount === "function") {
+                        loadCartCount();
+                    }
+
+                })
+
+                .catch((error) => {
+
+                    console.error(error);
+
+                    showToast("Something went wrong","error");
+
+                    button.disabled = false;
+                    button.innerText = "Add to cart";
+
+                });
 
             });
 
         });
 
     });
+    </script>
 
-});
-</script>
 </body>
 </html>

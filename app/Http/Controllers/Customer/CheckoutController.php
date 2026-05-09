@@ -42,7 +42,7 @@ class CheckoutController extends Controller
             'customer_name'   => ['required','string','max:255'],
             'customer_email'  => ['nullable','email','max:255'],
             'customer_phone1' => ['required','regex:/^01[0-9]{9}$/'],
-            'customer_phone2' => ['nullable','regex:/^01[0-9]{9}$/'],
+            'customer_phone2' => ['required','regex:/^01[0-9]{9}$/'],
             'notes'           => ['nullable','string'],
             'governorate_id'  => ['required','exists:governorates,id'],
             'address'         => ['required','string','max:2000'],

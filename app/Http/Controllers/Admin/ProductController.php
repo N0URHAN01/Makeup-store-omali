@@ -56,16 +56,16 @@ class ProductController extends Controller
             'variants.*.image'    => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
-        // ✅ Generate unique product code automatically
+        //  Generate unique product code automatically
         $productCode = strtoupper(Str::random(8));
 
-        // ✅ Save main image
+        //  Save main image
         $imagePath = null;
         if ($request->hasFile('image')) {
             $imagePath = $request->file('image')->store('products', 'public');
         }
 
-        // ✅ Create product
+        // Create product
         $product = Product::create([
             'name' => $request->name,
             'product_code' => $productCode,
@@ -77,7 +77,7 @@ class ProductController extends Controller
             'category_id' => $request->category_id,
         ]);
 
-        // ✅ Save additional images
+        //  Save additional images
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $img) {
                 $path = $img->store('products/multiple', 'public');
@@ -88,7 +88,7 @@ class ProductController extends Controller
             }
         }
 
-        // ✅ Save product variants (with optional image)
+        // Save product variants (with optional image)
         if ($request->has('variants')) {
             foreach ($request->variants as $variant) {
                 if (!empty($variant['color_name']) || !empty($variant['color_code'])) {
@@ -291,4 +291,7 @@ class ProductController extends Controller
         $variant->update(['image' => null]);
         return response()->json(['success' => true]);
     }
+
+
+    
 }

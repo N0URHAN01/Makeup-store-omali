@@ -1,5 +1,9 @@
 @extends('admin.layouts.app')
 
+@php
+use App\Enums\OrderStatus;
+@endphp
+
 @section('title', 'Orders')
 
 @section('content')
@@ -59,14 +63,9 @@
 
                         <td class="p-3">
                             <span class="px-3 py-1 rounded-full text-sm font-semibold
-                                @if($order->status == 'pending') bg-yellow-100 text-yellow-800
-                                @elseif($order->status == 'confirmed') bg-blue-100 text-blue-800
-                                @elseif($order->status == 'shipped') bg-purple-100 text-purple-800
-                                @elseif($order->status == 'delivered') bg-green-100 text-green-800
-                                @elseif($order->status == 'cancelled') bg-red-100 text-red-800
-                                @else bg-gray-100 text-gray-700
-                                @endif">
-                                {{ ucfirst($order->status) }}
+                               {{ OrderStatus::color($order->status) }}">
+
+                                 {{ OrderStatus::label($order->status) }}
                             </span>
                         </td>
 

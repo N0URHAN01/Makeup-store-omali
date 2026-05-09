@@ -1,5 +1,6 @@
 
-    @extends('customer.layouts.app')
+ @extends('customer.layouts.app')
+
 <!DOCTYPE html>
 <html lang="en" dir="auto">
 <head>
@@ -174,6 +175,37 @@
                             @endif
                         </div>
 
+                        {{-- ================= VARIANTS ================= --}}
+@if($product->variants->count())
+<div class="mt-6">
+    <h3 class="text-sm font-extrabold text-gray-900 mb-3">Choose Color</h3>
+
+    <div class="flex flex-wrap gap-3" id="variantsContainer">
+        @foreach($product->variants as $variant)
+            <button type="button"
+                class="variant-btn relative w-14 h-14 rounded-full border-2 border-gray-200 overflow-hidden hover:border-pink-500 transition"
+                data-id="{{ $variant->id }}"
+                data-image="{{ $variant->image ? asset('storage/'.$variant->image) : '' }}"
+                title="{{ $variant->color_name }}"
+            >
+                @if($variant->image)
+                    <img src="{{ asset('storage/'.$variant->image) }}"
+                         class="w-full h-full object-cover">
+                @else
+                    <div class="w-full h-full"
+                         style="background-color: {{ $variant->color_code }}"></div>
+                @endif
+            </button>
+        @endforeach
+    </div>
+
+    {{-- Error Message --}}
+    <p id="variantError" class="text-red-500 text-xs mt-2 hidden">
+        ⚠ Please select your choice first
+    </p>
+</div>
+@endif
+
                         {{-- Quick perks --}}
                         <div class="mt-6 grid grid-cols-3 gap-3">
                             <div class="rounded-2xl bg-white border border-gray-100 px-3 py-3 text-center shadow-sm">
@@ -213,7 +245,7 @@
 
     <input type="hidden" name="product_id" value="{{ $product->id }}">
     <input type="hidden" name="qty" value="1">
-
+  <input type="hidden" name="variant_id" id="selectedVariant"> 
     <button type="submit"
         class="add-to-cart-btn w-full inline-flex items-center justify-center gap-2 rounded-2xl
         bg-gradient-to-r from-pink-600 to-fuchsia-600

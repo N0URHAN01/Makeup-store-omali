@@ -1,7 +1,16 @@
+ 
 @php
     $hasDiscount = $product->discount_percentage > 0;
     $discountText = rtrim(rtrim(number_format($product->discount_percentage, 2), '0'), '.');
+
+    // FIX REAL LOGIC
+    $hasVariants = $product->variants
+        ->whereNotNull('color_name')
+        ->where('stock', '>', 0)
+        ->count() > 0;
 @endphp
+
+
 
 <div class="group h-full rounded-3xl border border-gray-200 bg-white overflow-hidden
             hover:border-pink-200 hover:shadow-[0_18px_60px_-28px_rgba(236,72,153,0.55)]
@@ -12,18 +21,15 @@
         <div class="relative aspect-square rounded-2xl overflow-hidden
                     bg-gradient-to-b from-gray-50 to-white border border-gray-100">
 
-            {{-- Background effects --}}
             <div class="pointer-events-none absolute -top-10 -left-10 h-40 w-40 rounded-full bg-pink-200/30 blur-3xl"></div>
             <div class="pointer-events-none absolute -bottom-12 -right-10 h-44 w-44 rounded-full bg-fuchsia-200/25 blur-3xl"></div>
 
             <a href="{{ route('products.show', $product->id) }}" class="block w-full h-full">
                 @if($product->image)
-                    <img
-                        src="{{ asset('storage/'.$product->image) }}"
-                        alt="{{ $product->name }}"
-                        class="w-full h-full object-contain p-5
-                               group-hover:scale-[1.05] transition-transform duration-300"
-                    >
+                    <img src="{{ asset('storage/'.$product->image) }}"
+                         alt="{{ $product->name }}"
+                         class="w-full h-full object-contain p-5
+                                group-hover:scale-[1.05] transition-transform duration-300">
                 @else
                     <div class="h-full w-full flex items-center justify-center text-pink-400 font-semibold">
                         No Image
@@ -31,7 +37,6 @@
                 @endif
             </a>
 
-            {{-- Discount --}}
             @if($hasDiscount)
                 <span class="absolute top-3 left-3 inline-flex items-center gap-1 text-[11px] font-extrabold
                              bg-gray-900 text-white px-2.5 py-1 rounded-full shadow">
@@ -39,7 +44,6 @@
                 </span>
             @endif
 
-            {{-- Quick view desktop --}}
             <a href="{{ route('products.show', $product->id) }}"
                class="hidden sm:flex absolute inset-x-4 bottom-4 items-center justify-center gap-2
                       opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0
@@ -49,13 +53,13 @@
                 Quick view
             </a>
 
-            {{-- Mobile --}}
             <a href="{{ route('products.show', $product->id) }}"
                class="sm:hidden absolute inset-x-4 bottom-4 text-center
                       bg-white/95 border border-gray-200 rounded-2xl py-2
                       text-xs font-semibold text-gray-900 shadow-sm">
                 View details
             </a>
+
         </div>
     </div>
 
@@ -64,8 +68,7 @@
 
         <a href="{{ route('products.show', $product->id) }}"
            class="text-sm sm:text-[15px] font-semibold text-gray-900 leading-snug
-                  line-clamp-2 hover:text-pink-700 transition
-                  min-h-[44px]">
+                  line-clamp-2 hover:text-pink-700 transition min-h-[44px]">
             {{ $product->name }}
         </a>
 
@@ -93,39 +96,50 @@
             {{ $product->stock > 0 ? 'In stock' : 'Out of stock' }}
         </div>
 
-        {{-- Button --}}
+        {{-- BUTTON --}}
         <div class="mt-auto pt-4">
+
             @if($product->stock > 0)
 
-                <form class="add-to-cart-form">
-                    @csrf
-                    <input type="hidden" name="product_id" value="{{ $product->id }}">
-                    <input type="hidden" name="qty" value="1">
+                @if($hasVariants)
 
-                    <button type="submit"
-                        class="add-to-cart-btn w-full inline-flex items-center justify-center gap-2
-                               rounded-2xl px-4 py-3
-                               bg-pink-600 text-white text-sm font-semibold
-                               hover:bg-pink-700 transition shadow-sm">
+                    {{-- CASE: HAS VARIANTS --}}
+                    <a href="{{ route('products.show', $product->id) }}"
+                       class="w-full inline-flex items-center justify-center gap-2
+                              rounded-2xl px-4 py-3
+                              bg-gray-900 text-white text-sm font-semibold
+                              hover:bg-gray-800 transition shadow-sm">
 
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
-                             viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 8h14l-1 12H6L5 8z"/>
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 8V7a3 3 0 016 0v1"/>
-                        </svg>
+                        Choose options
+                    </a>
 
-                        Add to cart
-                    </button>
-                </form>
+                @else
+
+                    {{-- CASE: NO VARIANTS --}}
+                   <form class="add-to-cart-form">
+    @csrf
+    <input type="hidden" name="product_id" value="{{ $product->id }}">
+    <input type="hidden" name="qty" value="1">
+
+    <button type="submit"
+        class="add-to-cart-btn w-full bg-pink-600 text-white py-3 rounded-xl">
+        Add to cart
+    </button>
+</form>
+
+                @endif
 
             @else
+
                 <button disabled
-                    class="w-full inline-flex items-center justify-center gap-2
-                           rounded-2xl px-4 py-3
-                           bg-gray-200 text-gray-500 text-sm font-semibold cursor-not-allowed">
+                        class="w-full inline-flex items-center justify-center gap-2
+                               rounded-2xl px-4 py-3
+                               bg-gray-200 text-gray-500 text-sm font-semibold cursor-not-allowed">
                     Sold out
                 </button>
+
             @endif
+
         </div>
 
     </div>

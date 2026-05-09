@@ -38,7 +38,7 @@ Route::get('/categories/{slug}', [CustomerCategoryController::class, 'show'])
   //customer  Products
 Route::get('/products', [CustomerProductController::class, 'index'])->name('products.index');        // all products page
 Route::get('/products/{product}', [CustomerProductController::class, 'show'])->name('products.show'); // product details
-
+Route::get('/products/{id}/variants', [ProductController::class, 'variants']);
 
 // Order tracking
 Route::get('/order/track', [OrderTrackingController::class, 'index'])
@@ -58,7 +58,6 @@ Route::prefix('cart')->name('cart.')->group(function () {
     Route::post('/decrement', [CartController::class, 'decrement'])->name('decrement');
     Route::delete('/remove', [CartController::class, 'remove'])->name('remove');
     Route::delete('/clear', [CartController::class, 'clear'])->name('clear');
-
     // optional for ajax badge
     Route::get('/count', [CartController::class, 'count'])->name('count');
 });

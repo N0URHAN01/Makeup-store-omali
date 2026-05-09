@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
 use App\Models\Product;
+use App\Models\ProductVariant;
 use Illuminate\Http\Request;
+
 
 class CartController extends Controller
 {
@@ -41,10 +43,23 @@ class CartController extends Controller
             'qty'        => ['nullable','integer','min:1','max:50'],
         ]);
 
-        $product = Product::with('images')->findOrFail($data['product_id']);
+        $product = Product::with('images')->findOrFail($data['product_id']); 
 
+         $variantId = $data['variant_id'] ?? null;
         $qty = (int)($data['qty'] ?? 1);
-        $variantId = $data['variant_id'] ?? null;
+
+         $hasVariants = $product->variants
+    ->whereNotNull('color_name')
+    ->where('stock', '>', 0)
+    ->count() > 0;
+
+if ($hasVariants && !$variantId) {
+    return response()->json([
+        'success' => false,
+        'message' => 'Please choose product options first',
+        'require_variant' => true
+    ], 422);
+}
 
         $price = (float) ($product->discount_percentage > 0 ? $product->discounted_price : $product->price);
 
@@ -90,7 +105,7 @@ class CartController extends Controller
             return back()->with('error', 'Item not found.');
         }
 
-        // احترم الستوك المخزن في السلة
+        // Ensure the new quantity does not exceed stock 
         $cart[$data['key']]['qty'] = min((int)$data['qty'], (int)$cart[$data['key']]['stock']);
 
         $this->saveCart($cart);
@@ -151,4 +166,7 @@ class CartController extends Controller
         $count = collect($this->cart())->sum('qty');
         return response()->json(['count' => $count]);
     }
+
+
+    
 }
