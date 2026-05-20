@@ -16,7 +16,7 @@ class OrderTrackingController extends Controller
         if ($request->filled('phone')) {
             $orders = Order::where('customer_phone1', $request->phone)
                 ->orWhere('customer_phone2', $request->phone)
-                ->with('items.product')
+                ->with('items.product' , 'items.variant')
                 ->latest()
                 ->get();
         }

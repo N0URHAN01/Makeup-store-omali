@@ -1,16 +1,11 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Order Confirmed</title>
-  @vite('resources/css/app.css')
-</head>
-<body class="bg-white">
+@extends('customer.layouts.app')
 
-@include('customer.home.sections.navbar')
+@section('title', 'Order Confirmed')
+
+@section('content')
 
 <main class="max-w-3xl mx-auto px-4 sm:px-6 py-14">
+
   <div class="rounded-3xl border border-gray-200 bg-white p-8">
 
     {{-- SUCCESS ICON --}}
@@ -19,19 +14,28 @@
         ✅
       </div>
 
-      <h1 class="mt-4 text-3xl font-extrabold text-gray-900">Order confirmed</h1>
-      <p class="mt-2 text-gray-600">Thanks! Your order has been placed successfully.</p>
+      <h1 class="mt-4 text-3xl font-extrabold text-gray-900">
+        Order confirmed
+      </h1>
+
+      <p class="mt-2 text-gray-600">
+        Thanks! Your order has been placed successfully.
+      </p>
     </div>
 
     {{-- ORDER INFO --}}
     <div class="mt-6 rounded-2xl bg-gray-50 p-4">
 
       <p class="text-sm text-gray-600">Order Code</p>
-      <p class="text-xl font-extrabold text-gray-900">{{ $order->order_code }}</p>
+      <p class="text-xl font-extrabold text-gray-900">
+        {{ $order->order_code }}
+      </p>
 
       <div class="mt-4 flex justify-between text-sm">
         <span class="text-gray-600">Status</span>
-        <span class="font-semibold text-gray-900">{{ ucfirst($order->status) }}</span>
+        <span class="font-semibold text-gray-900">
+          {{ ucfirst($order->status) }}
+        </span>
       </div>
 
       {{-- CUSTOMER INFO --}}
@@ -65,16 +69,33 @@
 
             {{-- IMAGE + NAME --}}
             <div class="flex items-center gap-3">
-              <img src="{{ asset('storage/' . $item->product->image) }}"
-                   class="w-12 h-12 object-cover rounded-lg border">
 
+
+                   <img 
+  src="{{ $item->variant && $item->variant->image 
+            ? asset('storage/' . $item->variant->image) 
+            : asset('storage/' . $item->product->image) }}"
+  class="w-12 h-12 object-cover rounded-lg border">
               <div class="text-sm">
+
                 <p class="font-semibold text-gray-900">
                   {{ $item->product->name }}
                 </p>
+
+                {{-- VARIANT --}}
+                @if($item->variant)
+                  <div class="flex items-center gap-1 text-xs text-gray-500">
+                    <span class="w-2.5 h-2.5 rounded-full border"
+                          style="background: {{ $item->variant->color_code }}"></span>
+
+                    {{ $item->variant->color_name }}
+                  </div>
+                @endif
+
                 <p class="text-gray-500">
                   Qty: {{ $item->quantity }}
                 </p>
+
               </div>
             </div>
 
@@ -82,6 +103,7 @@
             <span class="text-sm font-semibold text-gray-900">
               {{ number_format($item->total,2) }} EGP
             </span>
+
           </div>
         @endforeach
       </div>
@@ -112,8 +134,8 @@
         Back to home
       </a>
 
-      {{-- TRACK BUTTON --}}
-      <a href=""
+      {{-- TRACK ORDER BUTTON  --}}
+      <a href="{{ route('order.track', ['phone' => $order->customer_phone1]) }}"
          class="inline-flex justify-center rounded-2xl border border-gray-300 px-6 py-3 text-gray-700 font-semibold hover:bg-gray-100">
         Track Order
       </a>
@@ -121,7 +143,7 @@
     </div>
 
   </div>
+
 </main>
 
-</body>
-</html>
+@endsection

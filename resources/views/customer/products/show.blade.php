@@ -145,7 +145,17 @@
                             <span class="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-extrabold shadow-sm
                                 {{ $product->stock > 0 ? 'bg-green-50 text-green-700 border border-green-100' : 'bg-red-50 text-red-700 border border-red-100' }}">
                                 <span class="h-1.5 w-1.5 rounded-full {{ $product->stock > 0 ? 'bg-green-500' : 'bg-red-500' }}"></span>
-                                {{ $product->stock > 0 ? 'In stock' : 'Out of stock' }}
+                               @php
+    $totalStock = $product->variants->sum('stock');
+@endphp
+
+<span class="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-extrabold shadow-sm
+    {{ $totalStock > 0 ? 'bg-green-50 text-green-700 border border-green-100' : 'bg-red-50 text-red-700 border border-red-100' }}">
+    
+    <span class="h-1.5 w-1.5 rounded-full {{ $totalStock > 0 ? 'bg-green-500' : 'bg-red-500' }}"></span>
+
+    {{ $totalStock > 0 ? 'In stock' : 'Out of stock' }}
+</span>
                             </span>
                         </div>
 
@@ -178,28 +188,40 @@
                         {{-- ================= VARIANTS ================= --}}
 @if($product->variants->count())
 <div class="mt-6">
-    <h3 class="text-sm font-extrabold text-gray-900 mb-3">Choose Color</h3>
+    <h3 class="text-sm font-extrabold text-gray-900 mb-4">Choose Color</h3>
 
-    <div class="flex flex-wrap gap-3" id="variantsContainer">
+    <div class="flex flex-wrap gap-4" id="variantsContainer">
         @foreach($product->variants as $variant)
-            <button type="button"
-                class="variant-btn relative w-14 h-14 rounded-full border-2 border-gray-200 overflow-hidden hover:border-pink-500 transition"
-                data-id="{{ $variant->id }}"
-                data-image="{{ $variant->image ? asset('storage/'.$variant->image) : '' }}"
-                title="{{ $variant->color_name }}"
-            >
-                @if($variant->image)
-                    <img src="{{ asset('storage/'.$variant->image) }}"
-                         class="w-full h-full object-cover">
-                @else
-                    <div class="w-full h-full"
-                         style="background-color: {{ $variant->color_code }}"></div>
-                @endif
-            </button>
+
+            <div class="variant-wrapper flex flex-col items-center gap-1.5">
+
+                {{-- Circle --}}
+                <button type="button"
+                    class="variant-btn w-14 h-14 rounded-full border-2 border-gray-200 overflow-hidden
+                           hover:border-pink-500 transition relative"
+                    data-id="{{ $variant->id }}"
+                    data-image="{{ $variant->image ? asset('storage/'.$variant->image) : '' }}"
+                >
+                    @if($variant->image)
+                        <img src="{{ asset('storage/'.$variant->image) }}"
+                             class="w-full h-full object-cover">
+                    @else
+                        <div class="w-full h-full"
+                             style="background-color: {{ $variant->color_code }}"></div>
+                    @endif
+                </button>
+
+                {{-- Color Name --}}
+                <span class="variant-name text-[11px] font-medium text-gray-500 text-center">
+                    {{ $variant->color_name }}
+                </span>
+
+            </div>
+
         @endforeach
     </div>
 
-    {{-- Error Message --}}
+    {{-- Error --}}
     <p id="variantError" class="text-red-500 text-xs mt-2 hidden">
         ⚠ Please select your choice first
     </p>
@@ -352,6 +374,41 @@
                 if (e.key === 'Escape' && !lightbox.classList.contains('hidden')) closeModal();
             });
         });
+
+
+        const variantButtons = document.querySelectorAll('.variant-btn');
+const selectedVariantInput = document.getElementById('selectedVariant');
+
+variantButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+
+        // remove active from all
+        variantButtons.forEach(b => {
+            b.classList.remove('border-pink-600', 'ring-2', 'ring-pink-300');
+
+            const name = b.closest('.variant-wrapper').querySelector('.variant-name');
+            name.classList.remove('text-pink-600', 'font-semibold');
+            name.classList.add('text-gray-500');
+        });
+
+        // add active
+        btn.classList.add('border-pink-600', 'ring-2', 'ring-pink-300');
+
+        const name = btn.closest('.variant-wrapper').querySelector('.variant-name');
+        name.classList.remove('text-gray-500');
+        name.classList.add('text-pink-600', 'font-semibold');
+
+        // set hidden input
+        selectedVariantInput.value = btn.dataset.id;
+
+        // change main image if exists
+        if (btn.dataset.image) {
+            document.getElementById('mainImage').src = btn.dataset.image;
+            document.getElementById('lightboxImage').src = btn.dataset.image;
+        }
+
+    });
+});
     </script>
 </body>
 </html>

@@ -66,9 +66,29 @@ class CheckoutController extends Controller
         DB::beginTransaction();
         try {
             foreach ($cart as $item) {
-                $product = Product::findOrFail($item['product_id']);
+              $product = Product::findOrFail($item['product_id']);
 
-                if ($product->stock <= 0) {
+$variantId = $item['variant_id'] ?? null;
+
+if ($variantId) {
+    $variant = \App\Models\ProductVariant::findOrFail($variantId);
+
+    if ($variant->stock <= 0) {
+        throw new \Exception("{$product->name} is out of stock.");
+    }
+
+    $qty = min((int)$item['qty'], (int)$variant->stock);
+    $stockReference = $variant;
+
+} else {
+
+    if ($product->stock <= 0) {
+        throw new \Exception("{$product->name} is out of stock.");
+    }
+
+    $qty = min((int)$item['qty'], (int)$product->stock);
+    $stockReference = $product;
+} {
                     throw new \Exception("{$product->name} is out of stock.");
                 }
 
@@ -113,7 +133,11 @@ class CheckoutController extends Controller
                     'total'      => $lineTotal,
                 ]);
 
-                $product->decrement('stock', $qty);
+                if ($variantId) {
+    $variant->decrement('stock', $qty);
+} else {
+    $product->decrement('stock', $qty);
+}
             }
 
             DB::commit();
@@ -132,7 +156,7 @@ class CheckoutController extends Controller
     public function success(Order $order)
     {
       
-        $order->load('items.product'); 
+        $order->load('items.product' , 'items.variant', 'governorate'); 
         return view('customer.checkout.success', compact('order'));
     }
 }
