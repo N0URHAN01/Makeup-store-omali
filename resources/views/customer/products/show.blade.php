@@ -186,7 +186,7 @@
                         </div>
 
                         {{-- ================= VARIANTS ================= --}}
-@if($product->variants->count())
+<!-- @if($product->variants->count())
 <div class="mt-6">
     <h3 class="text-sm font-extrabold text-gray-900 mb-4">Choose Color</h3>
 
@@ -219,6 +219,75 @@
             </div>
 
         @endforeach
+    </div>
+
+    {{-- Error --}}
+    <p id="variantError" class="text-red-500 text-xs mt-2 hidden">
+        ⚠ Please select your choice first
+    </p>
+</div>
+@endif -->
+
+
+
+
+
+@if($product->variants->count())
+<div class="mt-6">
+    <h3 class="text-sm font-extrabold text-gray-900 mb-4">Choose Color</h3>
+
+    <div class="flex flex-wrap gap-4" id="variantsContainer">
+
+        @foreach($product->variants as $variant)
+
+            @php
+                $outOfStock = $variant->stock <= 0;
+            @endphp
+
+            <div class="variant-wrapper flex flex-col items-center gap-1.5">
+
+                {{-- Circle --}}
+                <button type="button"
+                    class="variant-btn w-14 h-14 rounded-full border-2 overflow-hidden transition relative
+                    {{ $outOfStock
+                        ? 'border-gray-200 opacity-40 cursor-not-allowed'
+                        : 'border-gray-200 hover:border-pink-500'
+                    }}"
+                    
+                    data-id="{{ $variant->id }}"
+                    data-image="{{ $variant->image ? asset('storage/'.$variant->image) : '' }}"
+                    {{ $outOfStock ? 'disabled' : '' }}
+                >
+
+                    @if($variant->image)
+                        <img src="{{ asset('storage/'.$variant->image) }}"
+                             class="w-full h-full object-cover">
+                    @else
+                        <div class="w-full h-full"
+                             style="background-color: {{ $variant->color_code }}"></div>
+                    @endif
+
+                    {{-- Out Of Stock Overlay --}}
+                    @if($outOfStock)
+                        <div class="absolute inset-0 bg-white/50 flex items-center justify-center">
+                            <span class="text-[10px] font-bold text-red-600">
+                                Out
+                            </span>
+                        </div>
+                    @endif
+
+                </button>
+
+                {{-- Color Name --}}
+                <span class="variant-name text-[11px] font-medium text-center
+                    {{ $outOfStock ? 'text-red-500' : 'text-gray-500' }}">
+                    {{ $variant->color_name }}
+                </span>
+
+            </div>
+
+        @endforeach
+
     </div>
 
     {{-- Error --}}

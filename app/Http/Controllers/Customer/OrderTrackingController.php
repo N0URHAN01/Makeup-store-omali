@@ -9,23 +9,61 @@ use Illuminate\Http\Request;
 
 class OrderTrackingController extends Controller
 {
-    public function index(Request $request)
-    {
-        $orders = [];
+    
 
-        if ($request->filled('phone')) {
-            $orders = Order::where('customer_phone1', $request->phone)
-                ->orWhere('customer_phone2', $request->phone)
-                ->with('items.product' , 'items.variant')
-                ->latest()
-                ->get();
-        }
+//     public function index(Request $request)
+// {
+//      $latestOrder = null;
+//     $orders = collect();
 
-        return view('customer.orders.track', compact('orders'));
+//     if ($request->filled('phone')) {
+
+//         $phone = trim($request->phone);
+
+//         $orders = Order::with('items.product', 'items.variant')
+//             ->where(function ($q) use ($phone) {
+//                 $q->where('customer_phone1', $phone)
+//                   ->orWhere('customer_phone2', $phone);
+//             })
+//             ->latest()
+//             ->get();
+
+//              $latestOrder = $orders->first();
+//             $otherOrders = $orders->skip(1)->take(3);
+//     }
+
+//     return view('customer.orders.track', compact('orders', 'latestOrder', 'otherOrders'));
+// }
+
+public function index(Request $request)
+{
+    $latestOrder = null;
+    $otherOrders = collect();
+
+    if ($request->filled('phone')) {
+
+        $phone = trim($request->phone);
+
+        $orders = Order::with('items.product', 'items.variant')
+            ->where(function ($q) use ($phone) {
+                $q->where('customer_phone1', $phone)
+                  ->orWhere('customer_phone2', $phone);
+            })
+            ->latest()
+            ->get();
+
+        $latestOrder = $orders->first();
+
+        $otherOrders = $orders->skip(1)->take(3); 
     }
 
+    return view('customer.orders.track', compact('latestOrder', 'otherOrders'));
+}
 
-    public function cancel(Order $order)
+
+
+
+public function cancel(Order $order)
 {
     if (now()->diffInMinutes($order->created_at) > 60) {
         return back()->with('error', 'Cancel time expired');
@@ -35,8 +73,20 @@ class OrderTrackingController extends Controller
         return back()->with('error', 'Order cannot be cancelled');
     }
 
-    $order->update(['status' => 'cancelled']);
+    foreach ($order->items as $item) {
 
-    return back()->with('success', 'Order cancelled');
+        if ($item->variant) {
+            $item->variant->increment('stock', $item->quantity);
+        } else {
+            $item->product->increment('stock', $item->quantity);
+        }
+
+    }
+
+    $order->update([
+        'status' => 'cancelled'
+    ]);
+
+    return back()->with('success', 'Order cancelled successfully');
 }
 }

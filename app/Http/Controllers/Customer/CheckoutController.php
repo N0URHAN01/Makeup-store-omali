@@ -7,6 +7,7 @@ use App\Models\Governorate;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
+use App\Models\ProductVariant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -20,11 +21,14 @@ class CheckoutController extends Controller
     public function index()
     {
         $cart = $this->cart();
+
         if (empty($cart)) {
-            return redirect()->route('cart.index')->with('error', 'Your cart is empty.');
+            return redirect()->route('cart.index')
+                ->with('error', 'Your cart is empty.');
         }
 
-        $subtotal = collect($cart)->sum(fn($i) => $i['price'] * $i['qty']);
+        $subtotal = collect($cart)
+            ->sum(fn($i) => $i['price'] * $i['qty']);
 
         $governorates = Governorate::orderBy('name')->get();
 
@@ -34,8 +38,10 @@ class CheckoutController extends Controller
     public function store(Request $request)
     {
         $cart = $this->cart();
+
         if (empty($cart)) {
-            return redirect()->route('cart.index')->with('error', 'Your cart is empty.');
+            return redirect()->route('cart.index')
+                ->with('error', 'Your cart is empty.');
         }
 
         $data = $request->validate([
@@ -46,17 +52,14 @@ class CheckoutController extends Controller
             'notes'           => ['nullable','string'],
             'governorate_id'  => ['required','exists:governorates,id'],
             'address'         => ['required','string','max:2000'],
-        ] , [
-        'customer_name.required' => 'Please enter your name',
-        'customer_phone1.required' => 'Phone number is required',
-        'customer_phone1.regex' => 'Phone must be 11 digits and start with 01',
-        'customer_phone2.regex' => 'Phone must be 11 digits and start with 01',
-        'governorate_id.required' => 'Please select your governorate',
-        'address.required' => 'Please enter your address',
-        ]
-    
-    
-    );
+        ], [
+            'customer_name.required' => 'Please enter your name',
+            'customer_phone1.required' => 'Phone number is required',
+            'customer_phone1.regex' => 'Phone must be 11 digits and start with 01',
+            'customer_phone2.regex' => 'Phone must be 11 digits and start with 01',
+            'governorate_id.required' => 'Please select your governorate',
+            'address.required' => 'Please enter your address',
+        ]);
 
         $gov = Governorate::findOrFail($data['governorate_id']);
         $shipping = (float) ($gov->shipping_cost ?? 0);
@@ -64,39 +67,43 @@ class CheckoutController extends Controller
         $subtotal = 0;
 
         DB::beginTransaction();
+
         try {
+
+            /**
+             * ======================
+             * CHECK STOCK + CALCULATE
+             * ======================
+             */
             foreach ($cart as $item) {
-              $product = Product::findOrFail($item['product_id']);
 
-$variantId = $item['variant_id'] ?? null;
+                $product = Product::findOrFail($item['product_id']);
+                $variantId = $item['variant_id'] ?? null;
 
-if ($variantId) {
-    $variant = \App\Models\ProductVariant::findOrFail($variantId);
+                if ($variantId) {
+                    $variant = ProductVariant::findOrFail($variantId);
 
-    if ($variant->stock <= 0) {
-        throw new \Exception("{$product->name} is out of stock.");
-    }
+                    if ($variant->stock < $item['qty']) {
+                        throw new \Exception("{$product->name} (variant) is out of stock.");
+                    }
 
-    $qty = min((int)$item['qty'], (int)$variant->stock);
-    $stockReference = $variant;
+                    $price = (float) $product->discount_percentage > 0
+                        ? $product->discounted_price
+                        : $product->price;
 
-} else {
+                    $subtotal += $price * $item['qty'];
+                } else {
 
-    if ($product->stock <= 0) {
-        throw new \Exception("{$product->name} is out of stock.");
-    }
+                    if ($product->stock < $item['qty']) {
+                        throw new \Exception("{$product->name} is out of stock.");
+                    }
 
-    $qty = min((int)$item['qty'], (int)$product->stock);
-    $stockReference = $product;
-} {
-                    throw new \Exception("{$product->name} is out of stock.");
+                    $price = (float) $product->discount_percentage > 0
+                        ? $product->discounted_price
+                        : $product->price;
+
+                    $subtotal += $price * $item['qty'];
                 }
-
-                $qty = min((int)$item['qty'], (int)$product->stock);
-
-                $price = (float) ($product->discount_percentage > 0 ? $product->discounted_price : $product->price);
-
-                $subtotal += ($price * $qty);
             }
 
             $total = $subtotal + $shipping;
@@ -104,59 +111,73 @@ if ($variantId) {
             $orderCode = 'OMALI-' . now()->format('Ymd') . '-' . strtoupper(substr(md5(uniqid()), 0, 6));
 
             $order = Order::create([
-                'order_code'     => $orderCode,
-                'customer_name'  => $data['customer_name'],
-                'customer_email' => $data['customer_email'] ?? null,
-                'customer_phone1'=> $data['customer_phone1'],
-                'customer_phone2'=> $data['customer_phone2'] ?? '',
-                'notes'          => $data['notes'] ?? null,
-                'governorate_id' => $data['governorate_id'],
-                'address'        => $data['address'],
-                'shipping_cost'  => $shipping,
-                'total_price'    => $total,
-                'status'         => 'pending',
+                'order_code'      => $orderCode,
+                'customer_name'   => $data['customer_name'],
+                'customer_email'  => $data['customer_email'] ?? null,
+                'customer_phone1' => $data['customer_phone1'],
+                'customer_phone2' => $data['customer_phone2'] ?? '',
+                'notes'           => $data['notes'] ?? null,
+                'governorate_id'  => $data['governorate_id'],
+                'address'         => $data['address'],
+                'shipping_cost'   => $shipping,
+                'total_price'     => $total,
+                'status'          => 'pending',
             ]);
 
+            /**
+             * ======================
+             * CREATE ORDER ITEMS
+             * + DECREMENT STOCK
+             * ======================
+             */
             foreach ($cart as $item) {
-                $product = Product::findOrFail($item['product_id']);
-                $qty = min((int)$item['qty'], (int)$product->stock);
 
-                $price = (float) ($product->discount_percentage > 0 ? $product->discounted_price : $product->price);
+                $product = Product::findOrFail($item['product_id']);
+                $variantId = $item['variant_id'] ?? null;
+                $qty = (int) $item['qty'];
+
+                $price = (float) ($product->discount_percentage > 0
+                    ? $product->discounted_price
+                    : $product->price);
+
                 $lineTotal = $price * $qty;
 
                 OrderItem::create([
                     'order_id'   => $order->id,
                     'product_id' => $product->id,
-                    'variant_id' => $item['variant_id'] ?? null,
+                    'variant_id' => $variantId,
                     'quantity'   => $qty,
                     'price'      => $price,
                     'total'      => $lineTotal,
                 ]);
 
+                // STOCK HANDLING
                 if ($variantId) {
-    $variant->decrement('stock', $qty);
-} else {
-    $product->decrement('stock', $qty);
-}
+                    $variant = ProductVariant::findOrFail($variantId);
+                    $variant->decrement('stock', $qty);
+                } else {
+                    $product->decrement('stock', $qty);
+                }
             }
 
             DB::commit();
 
-           
             session()->forget('cart');
 
             return redirect()->route('checkout.success', $order->order_code);
 
         } catch (\Throwable $e) {
+
             DB::rollBack();
+
             return back()->with('error', $e->getMessage())->withInput();
         }
     }
 
     public function success(Order $order)
     {
-      
-        $order->load('items.product' , 'items.variant', 'governorate'); 
+        $order->load('items.product', 'items.variant', 'governorate');
+
         return view('customer.checkout.success', compact('order'));
     }
 }
