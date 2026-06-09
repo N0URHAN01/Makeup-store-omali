@@ -4,6 +4,7 @@ function loadCartCount() {
         .then(response => response.json())
         .then(data => {
             const badge = document.getElementById('cart-count');
+
             if (badge) {
                 badge.innerText = data.count;
                 badge.style.display = data.count > 0 ? 'flex' : 'none';
@@ -17,89 +18,191 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 
-<nav class="fixed w-full z-50 bg-white/80 backdrop-blur-md border-b border-pink-50">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6">
+<nav class="fixed top-0 left-0 w-full z-50 bg-white/85 backdrop-blur-xl border-b border-pink-100/70 shadow-[0_8px_30px_rgba(236,72,153,0.04)]">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
         <div class="flex justify-between items-center h-16">
 
-            {{-- Logo --}}
-            <a href="{{ route('home') ?? '#' }}"
-               class="flex items-center gap-2 select-none">
-                <span class="text-2xl font-extrabold tracking-tight text-gray-900">
-                    Om
-                </span>
-                <span class="text-2xl font-extrabold tracking-tight bg-gradient-to-r from-pink-500 to-fuchsia-500 bg-clip-text text-transparent">
-                    Ali
-                </span>
+            {{-- BRAND --}}
+            <a href="{{ route('home') }}"
+               class="group flex items-center select-none">
+
+                <div class="flex flex-col leading-none">
+
+                    <span class="text-[30px] sm:text-[34px] font-black tracking-tight text-gray-950"
+                          style="font-family: 'Playfair Display', serif;">
+                        Om Ali
+                    </span>
+
+                    <span class="mt-1 text-[10px] tracking-[0.35em] uppercase font-bold text-pink-500">
+                        Beauty Store
+                    </span>
+
+                </div>
+
             </a>
 
-            {{-- Desktop Links --}}
-            <div class="hidden md:flex items-center gap-10 text-gray-700 font-semibold">
-                <a href="{{ route('home') ?? '#' }}" class="relative hover:text-pink-600 transition">
+            {{-- DESKTOP LINKS --}}
+            <div class="hidden md:flex items-center gap-9 text-[17px] font-semibold text-gray-700"
+                 style="font-family: 'Inter', sans-serif;">
+
+                <a href="{{ route('home') }}"
+                   class="relative py-2 hover:text-pink-600 transition group">
                     Home
-                    <span class="absolute -bottom-2 left-0 w-0 h-[2px] bg-pink-500 transition-all duration-300 group-hover:w-full"></span>
+                    <span class="absolute left-0 -bottom-0.5 h-[2px] w-0 bg-pink-500 rounded-full transition-all duration-300 group-hover:w-full"></span>
                 </a>
 
-                <a href="#" class="hover:text-pink-600 transition">Shop</a>
-                <a href="#categories" class="hover:text-pink-600 transition">Categories</a>
-                <a href="#" class="hover:text-pink-600 transition">Contact</a>
+                <a href="{{ route('products.index') }}"
+                   class="relative py-2 hover:text-pink-600 transition group">
+                    Shop
+                    <span class="absolute left-0 -bottom-0.5 h-[2px] w-0 bg-pink-500 rounded-full transition-all duration-300 group-hover:w-full"></span>
+                </a>
+
+                <a href="{{ route('categories.index') }}"
+                   class="relative py-2 hover:text-pink-600 transition group">
+                    Categories
+                    <span class="absolute left-0 -bottom-0.5 h-[2px] w-0 bg-pink-500 rounded-full transition-all duration-300 group-hover:w-full"></span>
+                </a>
+
+                <a href="#contact"
+                   class="relative py-2 hover:text-pink-600 transition group">
+                    Contact
+                    <span class="absolute left-0 -bottom-0.5 h-[2px] w-0 bg-pink-500 rounded-full transition-all duration-300 group-hover:w-full"></span>
+                </a>
+
             </div>
 
-            {{-- Actions --}}
-            <!-- <div class="flex items-center gap-3">
-                {{-- Cart --}}
-                <button class="relative inline-flex items-center justify-center w-10 h-10 rounded-full bg-pink-50 hover:bg-pink-100 transition">
-                    <span class="text-lg">🛍️</span>
-                    <span class="absolute -top-1 -right-1 bg-pink-600 text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full font-bold">
+            {{-- ACTIONS --}}
+            <div class="flex items-center gap-3">
+
+                {{-- CART --}}
+                <a href="{{ route('cart.index') }}"
+                   class="relative inline-flex items-center justify-center w-11 h-11 rounded-full bg-pink-50 hover:bg-pink-100 border border-pink-100 transition group">
+
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                         class="h-5 w-5 text-gray-800 group-hover:text-pink-600 transition"
+                         fill="none"
+                         viewBox="0 0 24 24"
+                         stroke="currentColor"
+                         stroke-width="2">
+
+                        <path stroke-linecap="round"
+                              stroke-linejoin="round"
+                              d="M5 8h14l-1 12H6L5 8z"/>
+
+                        <path stroke-linecap="round"
+                              stroke-linejoin="round"
+                              d="M9 8V7a3 3 0 016 0v1"/>
+                    </svg>
+
+                    <span id="cart-count"
+                          class="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px]
+                                 bg-pink-600 text-white text-[10px] font-bold
+                                 rounded-full items-center justify-center px-1 shadow-sm">
                         0
                     </span>
-                </button> -->
-                <a href="{{ route('cart.index') }}" class="relative inline-flex items-center">
-    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-800"
-         fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-        <path stroke-linecap="round" stroke-linejoin="round"
-              d="M5 8h14l-1 12H6L5 8z"/>
-        <path stroke-linecap="round" stroke-linejoin="round"
-              d="M9 8V7a3 3 0 016 0v1"/>
-    </svg>
 
-    <span id="cart-count"
-          class="absolute -top-2 -right-2 bg-pink-600 text-white
-                 text-[10px] font-bold rounded-full px-1.5 py-0.5">
-        0
-    </span>
-</a>
+                </a>
 
-                {{-- Mobile Menu Button --}}
-                <button id="menuBtn" class="md:hidden w-10 h-10 rounded-full bg-gray-50 hover:bg-gray-100 transition text-xl">
-                    ☰
+                {{-- MOBILE MENU BUTTON --}}
+                <button id="menuBtn"
+                        class="md:hidden inline-flex items-center justify-center w-11 h-11 rounded-full bg-gray-950 text-white hover:bg-pink-600 transition">
+
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                         class="h-5 w-5"
+                         fill="none"
+                         viewBox="0 0 24 24"
+                         stroke="currentColor"
+                         stroke-width="2">
+
+                        <path stroke-linecap="round"
+                              stroke-linejoin="round"
+                              d="M4 6h16M4 12h16M4 18h16"/>
+                    </svg>
+
                 </button>
+
             </div>
 
         </div>
+
     </div>
 </nav>
 
 {{-- Push content below navbar --}}
 <div class="h-16"></div>
 
-{{-- Overlay --}}
-<div id="overlay" class="fixed inset-0 bg-black/40 hidden z-40"></div>
+{{-- OVERLAY --}}
+<div id="overlay"
+     class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden z-40"></div>
 
-{{-- Mobile Slide Menu --}}
+{{-- MOBILE MENU --}}
 <div id="mobileMenu"
-     class="fixed top-0 right-0 h-full w-[85%] max-w-sm bg-white shadow-2xl transform translate-x-full transition-transform duration-300 z-50">
+     class="fixed top-0 right-0 h-full w-[86%] max-w-sm bg-white shadow-2xl transform translate-x-full transition-transform duration-300 z-50">
 
-    <div class="flex justify-between items-center px-6 h-16 border-b">
-        <span class="text-lg font-bold text-gray-900">Menu</span>
-        <button id="closeMenu" class="text-2xl text-gray-700">&times;</button>
+    {{-- MOBILE HEADER --}}
+    <div class="flex justify-between items-center px-6 h-20 border-b border-pink-100">
+
+        <a href="{{ route('home') }}" class="flex flex-col leading-none" onclick="closeMenuFn()">
+
+            <span class="text-[32px] font-black tracking-tight text-gray-950"
+                  style="font-family: 'Playfair Display', serif;">
+                Om Ali
+            </span>
+
+            <span class="mt-1 text-[10px] tracking-[0.35em] uppercase font-bold text-pink-500">
+                Beauty Store
+            </span>
+
+        </a>
+
+        <button id="closeMenu"
+                class="w-10 h-10 rounded-full bg-pink-50 hover:bg-pink-100 text-gray-900 text-2xl flex items-center justify-center transition">
+            &times;
+        </button>
+
     </div>
 
-    <div class="px-6 py-8 space-y-6 text-gray-800 font-semibold">
-        <a href="{{ route('home') ?? '#' }}" class="block hover:text-pink-600 transition">Home</a>
-        <a href="#" class="block hover:text-pink-600 transition">Shop</a>
-        <a href="#categories" class="block hover:text-pink-600 transition" onclick="closeMenuFn()">Categories</a>
-        <a href="#" class="block hover:text-pink-600 transition">Contact</a>
+    {{-- MOBILE LINKS --}}
+    <div class="px-6 py-8 space-y-3 text-gray-900 font-semibold"
+         style="font-family: 'Inter', sans-serif;">
+
+        <a href="{{ route('home') }}"
+           onclick="closeMenuFn()"
+           class="flex items-center justify-between px-5 py-4 rounded-2xl bg-pink-50 hover:bg-pink-100 transition">
+            <span>Home</span>
+            <span class="text-pink-500">→</span>
+        </a>
+
+        <a href="{{ route('products.index') }}"
+           onclick="closeMenuFn()"
+           class="flex items-center justify-between px-5 py-4 rounded-2xl bg-white border border-pink-100 hover:bg-pink-50 transition">
+            <span>Shop</span>
+            <span class="text-pink-500">→</span>
+        </a>
+
+        <a href="#categories"
+           onclick="closeMenuFn()"
+           class="flex items-center justify-between px-5 py-4 rounded-2xl bg-white border border-pink-100 hover:bg-pink-50 transition">
+            <span>Categories</span>
+            <span class="text-pink-500">→</span>
+        </a>
+
+        <a href="#contact"
+           onclick="closeMenuFn()"
+           class="flex items-center justify-between px-5 py-4 rounded-2xl bg-white border border-pink-100 hover:bg-pink-50 transition">
+            <span>Contact</span>
+            <span class="text-pink-500">→</span>
+        </a>
+
+        <a href="{{ route('cart.index') }}"
+           onclick="closeMenuFn()"
+           class="flex items-center justify-center gap-2 mt-6 px-5 py-4 rounded-2xl bg-pink-600 hover:bg-pink-700 text-white transition">
+            View Cart
+        </a>
+
     </div>
+
 </div>
 
 <script>

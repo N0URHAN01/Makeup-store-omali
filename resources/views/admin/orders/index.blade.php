@@ -13,11 +13,35 @@ use App\Enums\OrderStatus;
     {{-- HEADER --}}
     <div class="flex justify-between items-center mb-6">
         <h2 class="text-2xl font-bold text-gray-900">Orders</h2>
+
         <a href="{{ route('admin.orders.create') }}"
            class="px-4 py-2 bg-pink-500 hover:bg-pink-600 text-white rounded-lg shadow transition">
             + Create Order
         </a>
     </div>
+
+    {{-- SEARCH --}}
+    <form method="GET" class="mb-6 flex gap-3">
+
+        <input type="text"
+               name="search"
+               value="{{ request('search') }}"
+               placeholder="Search by order code, name, or phone..."
+               class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-pink-400">
+
+        <button type="submit"
+                class="px-5 py-2 bg-pink-500 hover:bg-pink-600 text-white rounded-lg">
+            Search
+        </button>
+
+        @if(request('search'))
+            <a href="{{ route('admin.orders.index') }}"
+               class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg">
+                Reset
+            </a>
+        @endif
+
+    </form>
 
     {{-- SUCCESS MESSAGE --}}
     @if(session('success'))
@@ -29,6 +53,7 @@ use App\Enums\OrderStatus;
     {{-- TABLE --}}
     <div class="overflow-x-auto mt-4">
         <table class="w-full text-sm border-collapse rounded-lg overflow-hidden">
+
             <thead class="bg-pink-50">
                 <tr>
                     <th class="p-3 text-left font-medium text-gray-700">Order Code</th>
@@ -39,8 +64,11 @@ use App\Enums\OrderStatus;
                     <th class="p-3 text-center font-medium text-gray-700">Actions</th>
                 </tr>
             </thead>
+
             <tbody class="divide-y divide-pink-100">
+
                 @forelse($orders as $order)
+
                     <tr class="hover:bg-pink-50 transition cursor-pointer rounded-lg"
                         onclick="window.location='{{ route('admin.orders.show', $order->id) }}'">
 
@@ -70,49 +98,61 @@ use App\Enums\OrderStatus;
                         </td>
 
                         <td class="p-3 text-center space-x-2">
+
                             <div class="inline-flex space-x-2">
-                                <a href="{{ route('admin.orders.show', $order->id) }}" 
+
+                                <a href="{{ route('admin.orders.show', $order->id) }}"
                                    class="px-3 py-1 bg-pink-100 hover:bg-pink-200 text-pink-800 rounded-lg text-xs transition"
                                    onclick="event.stopPropagation();">
                                    View
                                 </a>
 
-                                <a href="{{ route('admin.orders.edit', $order->id) }}" 
+                                <a href="{{ route('admin.orders.edit', $order->id) }}"
                                    class="px-3 py-1 bg-purple-100 hover:bg-purple-200 text-purple-800 rounded-lg text-xs transition"
                                    onclick="event.stopPropagation();">
                                    Edit
                                 </a>
 
-                               <form action="{{ route('admin.orders.destroy', $order->id) }}" 
-      method="POST" class="inline-block"
-      onsubmit="event.stopPropagation(); return confirm('Delete this order?') ? true : false;">
-    @csrf
-    @method('DELETE')
-    <button type="submit" 
-            class="px-3 py-1 bg-red-100 hover:bg-red-200 text-red-800 rounded-lg text-xs transition"
-            onclick="event.stopPropagation();">
-        Delete
-    </button>
-</form>
+                                <form action="{{ route('admin.orders.destroy', $order->id) }}"
+                                      method="POST"
+                                      class="inline-block"
+                                      onsubmit="event.stopPropagation(); return confirm('Delete this order?')">
+
+                                    @csrf
+                                    @method('DELETE')
+
+                                    <button type="submit"
+                                            class="px-3 py-1 bg-red-100 hover:bg-red-200 text-red-800 rounded-lg text-xs transition"
+                                            onclick="event.stopPropagation();">
+                                        Delete
+                                    </button>
+
+                                </form>
 
                             </div>
+
                         </td>
 
                     </tr>
+
                 @empty
+
                     <tr>
                         <td colspan="6" class="p-4 text-center text-gray-500">
                             No orders found.
                         </td>
                     </tr>
+
                 @endforelse
+
             </tbody>
+
         </table>
     </div>
 
     {{-- PAGINATION --}}
     <div class="mt-4">
-        {{ $orders->links() }}
+        {{ $orders->appends(request()->query())->links() }}
     </div>
 
 </div>

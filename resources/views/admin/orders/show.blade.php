@@ -171,54 +171,95 @@ use App\Enums\OrderStatus;
                         </tr>
 
                     </thead>
+                          
+<tbody class="divide-y divide-gray-100">
 
-                    <tbody class="divide-y divide-gray-100">
+    @foreach($order->items as $item)
 
-                        @foreach($order->items as $item)
+        @php
+            $variant = $item->variant;
 
-                            <tr class="hover:bg-gray-50 transition">
+            if ($variant && $variant->image) {
+                $image = asset('storage/' . $variant->image);
+            } elseif ($item->product->image) {
+                $image = asset('storage/' . $item->product->image);
+            } else {
+                $image = 'https://via.placeholder.com/150';
+            }
+        @endphp
 
-                                <td class="py-4 px-4">
+        <tr class="hover:bg-gray-50 transition">
 
-                                    <div class="flex items-center gap-4">
+            {{-- PRODUCT --}}
+            <td class="py-4 px-4">
 
-                                        {{-- IMAGE --}}
-                                        <div class="w-14 h-14 bg-white p-1 rounded-lg shadow-sm border border-gray-100 overflow-hidden shrink-0">
+                <div class="flex items-center gap-4">
 
-                                            <img
-                                                src="{{ asset('storage/' . $item->product->image) }}"
-                                                class="w-full h-full object-contain"
-                                                alt="{{ $item->product->name }}"
-                                            >
+                    {{-- IMAGE --}}
+                    <div class="w-16 h-16 bg-white rounded-xl overflow-hidden border border-gray-100 shrink-0">
 
-                                        </div>
+                        <img
+                            src="{{ $image }}"
+                            class="w-full h-full object-cover"
+                            alt="{{ $item->product->name }}"
+                        >
 
-                                        <span class="font-medium text-gray-800 text-sm leading-5">
-                                            {{ $item->product->name }}
-                                        </span>
+                    </div>
 
-                                    </div>
+                    {{-- INFO --}}
+                    <div>
 
-                                </td>
+                        <h4 class="font-semibold text-gray-800">
+                            {{ $item->product->name }}
+                        </h4>
 
-                                <td class="py-4 px-4 text-center font-medium text-gray-800">
-                                    {{ $item->quantity }}
-                                </td>
+                        {{-- VARIANT --}}
+                        @if($variant)
 
-                                <td class="py-4 px-4 text-right text-gray-600">
-                                    {{ number_format($item->price, 2) }} EGP
-                                </td>
+                            <div class="flex items-center gap-2 mt-2">
 
-                                <td class="py-4 px-4 text-right font-semibold text-green-600">
-                                    {{ number_format($item->total, 2) }} EGP
-                                </td>
+                                @if($variant->color_code)
 
-                            </tr>
+                                    <span class="w-4 h-4 rounded-full border border-gray-300"
+                                          style="background-color: {{ $variant->color_code }}">
+                                    </span>
 
-                        @endforeach
+                                @endif
 
-                    </tbody>
+                                <span class="text-xs font-medium text-pink-600">
+                                    {{ $variant->color_name }}
+                                </span>
 
+                            </div>
+
+                        @endif
+
+                    </div>
+
+                </div>
+
+            </td>
+
+            {{-- QUANTITY --}}
+            <td class="py-4 px-4 text-center font-medium text-gray-800">
+                {{ $item->quantity }}
+            </td>
+
+            {{-- PRICE --}}
+            <td class="py-4 px-4 text-right text-gray-700">
+                {{ number_format($item->price, 2) }} EGP
+            </td>
+
+            {{-- TOTAL --}}
+            <td class="py-4 px-4 text-right font-bold text-green-600">
+                {{ number_format($item->total, 2) }} EGP
+            </td>
+
+        </tr>
+
+    @endforeach
+
+</tbody>
                 </table>
 
             </div>
@@ -286,6 +327,17 @@ use App\Enums\OrderStatus;
             Edit Full Order
 
         </a>
+
+        <a href="{{ route('admin.orders.pdf', $order->id) }}"
+           class="inline-flex items-center justify-center
+                  bg-fuchsia-600 hover:bg-fuchsia-700 text-white
+                  px-6 py-2 rounded-xl shadow-sm transition">
+
+            Download PDF
+
+        </a>
+
+
 
     </div>
 

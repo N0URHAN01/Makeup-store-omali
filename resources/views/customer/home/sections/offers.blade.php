@@ -5,16 +5,12 @@
         {{-- HEADER --}}
         <div class="text-center mb-10">
 
-            <span class="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-widest
-                         text-white bg-gradient-to-r from-pink-600 to-fuchsia-600
-                         px-4 py-1 rounded-full mb-4">
-                🔥 Limited time
-            </span>
+            
 
             <h2 class="text-4xl md:text-5xl font-extrabold tracking-tight text-gray-900 leading-tight mb-3">
                 Don't miss our
-                <span class="bg-gradient-to-r from-pink-600 via-fuchsia-600 to-rose-500
-                             bg-clip-text text-transparent">
+                <span class=" text-pink-600 
+                             ">
                     Special Offers
                 </span>
             </h2>

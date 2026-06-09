@@ -84,7 +84,7 @@
                     {{ $item['name'] }}
                   </p>
 
-                  {{-- 🔥 VARIANT --}}
+                  {{--  VARIANT --}}
                   @if(!empty($item['variant_name']))
                     <div class="flex items-center gap-2 mt-1">
                       <span class="w-3 h-3 rounded-full border"
@@ -100,7 +100,11 @@
                   <p class="text-sm text-gray-500 mt-1">
                     {{ number_format($item['price'],2) }} EGP
                   </p>
-
+ @if($item['qty'] >= $item['stock'])
+    <p class="text-xs text-red-500 mt-1">
+        Only {{ $item['stock'] }} item(s) available in stock.
+    </p>
+@endif
                 </div>
 
                 {{-- REMOVE --}}
@@ -111,6 +115,7 @@
                   <button class="text-sm font-semibold text-gray-400 hover:text-red-600 transition">
                     ✕
                   </button>
+              
                 </form>
 
               </div>
@@ -131,11 +136,25 @@
                     {{ $item['qty'] }}
                   </div>
 
-                  <form action="{{ route('cart.increment') }}" method="POST">
+                  <!-- <form action="{{ route('cart.increment') }}" method="POST">
                     @csrf
                     <input type="hidden" name="key" value="{{ $item['key'] }}">
                     <button class="px-3 py-2 hover:bg-gray-50 transition">+</button>
-                  </form>
+                  </form> -->
+
+                  <form action="{{ route('cart.increment') }}" method="POST">
+    @csrf
+    <input type="hidden" name="key" value="{{ $item['key'] }}">
+
+    <button
+        class="px-3 py-2 transition
+        {{ $item['qty'] >= $item['stock']
+            ? 'text-gray-300 cursor-not-allowed bg-gray-50'
+            : 'hover:bg-gray-50' }}"
+        {{ $item['qty'] >= $item['stock'] ? 'disabled' : '' }}>
+        +
+    </button>
+</form>
 
                 </div>
 

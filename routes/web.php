@@ -117,7 +117,9 @@ Route::middleware('auth:admin')->prefix('admin')->name('admin.')->group(function
     Route::get('orders/get-products/{category_id}', [OrderController::class, 'getProductsByCategory'])->name('orders.getProducts');
     Route::delete('orders/item/{item}', [OrderController::class, 'deleteItem'])->name('orders.deleteItem');
     Route::post('orders/{order}/add-item', [OrderController::class, 'addItem'])->name('orders.addItem');
-
+    
+   Route::get('orders/{id}/pdf', [OrderController::class, 'downloadPdf'])
+    ->name('orders.pdf');
     // Governorates
     Route::resource('governorates', GovernorateController::class);
 });

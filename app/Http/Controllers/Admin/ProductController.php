@@ -182,7 +182,7 @@ class ProductController extends Controller
             }
         }
 
-        // ✅ Update or create variants
+        //  Update or create variants
         if ($request->has('variants')) {
             foreach ($request->variants as $variantData) {
                 $variant = isset($variantData['id']) ? ProductVariant::find($variantData['id']) : null;
@@ -254,7 +254,7 @@ class ProductController extends Controller
     }
 
     /**
-     * ✅ Delete additional image (AJAX)
+     * Delete additional image (AJAX)
      */
     public function deleteImage($id)
     {
@@ -267,7 +267,7 @@ class ProductController extends Controller
     }
 
     /**
-     * ✅ Delete a variant (AJAX)
+     *  Delete a variant (AJAX)
      */
     public function deleteVariant($id)
     {
@@ -280,7 +280,7 @@ class ProductController extends Controller
     }
 
     /**
-     * ✅ Delete a variant image only (AJAX)
+     * Delete a variant image only (AJAX)
      */
     public function deleteVariantImage($id)
     {

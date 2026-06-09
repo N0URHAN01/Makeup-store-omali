@@ -9,13 +9,21 @@
 
     
 
-    {{-- Categories --}}
-    @include('customer.home.sections.categories')
+      {{-- Categories --}}
+      @include('customer.home.sections.categories')
 
-  {{-- Offers --}}
-    @include('customer.home.sections.offers')
+    {{-- Offers --}}
+      @include('customer.home.sections.offers')
 
-    {{-- Products Section --}}
-    @include('customer.home.sections.products')
+      {{-- Products Section --}}
+      @include('customer.home.sections.products')
 
+      {{-- About Us --}}
+      @include('customer.home.sections.aboutus')
+
+      {{-- Reviews --}}
+      @include('customer.home.sections.reviews')
+
+          {{--footer--}}
+      @include('customer.home.sections.footer')
 @endsection

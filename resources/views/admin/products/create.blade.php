@@ -107,44 +107,66 @@
             </div>
 
             {{-- Variants Section --}}
-            <div class="border-t border-pink-200 pt-6">
-                <h2 class="text-xl font-bold text-gray-800 mb-4">🎨 Product Variants</h2>
-                <div id="variantsContainer" class="space-y-4">
-                    <div class="variant-row flex flex-wrap gap-4 items-end bg-pink-50 border border-pink-100 p-4 rounded-xl">
-                        <div class="flex-1">
-                            <label class="block text-gray-800 mb-2 font-semibold">Color Name</label>
-                            <input type="text" name="variants[0][color_name]" placeholder="e.g., Red"
-                                   class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-pink-400 p-2.5">
-                        </div>
-                        <div class="flex-1">
-                            <label class="block text-gray-800 mb-2 font-semibold">Color Code</label>
-                            <input type="color" name="variants[0][color_code]"
-                                   class="w-full h-10 border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-pink-400">
-                        </div>
-                        <div class="flex-1">
-                            <label class="block text-gray-800 mb-2 font-semibold">Stock</label>
-                            <input type="number" name="variants[0][stock]" value="0"
-                                   class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-pink-400 p-2.5">
-                        </div>
-                        <div class="flex-1">
-                            <label class="block text-gray-800 mb-2 font-semibold">Price Difference (EGP)</label>
-                            <input type="number" step="0.01" name="variants[0][price_difference]" placeholder="e.g., +10"
-                                   class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-pink-400 p-2.5">
-                        </div>
-                        <div class="flex-1">
-                            <label class="block text-gray-800 mb-2 font-semibold">Variant Image</label>
-                            <input type="file" name="variants[0][image]" accept="image/*"
-                                   class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-pink-400 p-2.5">
-                        </div>
-                        <button type="button" class="removeVariant bg-red-500 hover:bg-red-600 text-white rounded-full w-8 h-8 flex items-center justify-center shadow-md mt-6">✕</button>
-                    </div>
-                </div>
+           {{-- Variants Section --}}
+<div class="border-t border-pink-200 pt-6">
+    <div class="flex items-center justify-between mb-4">
+        <div>
+            <h2 class="text-xl font-bold text-gray-800">🎨 Product Variants</h2>
+            <p class="text-sm text-gray-500 mt-1">
+                Add variants only if this product has colors or options.
+            </p>
+        </div>
 
-                <button type="button" id="addVariantBtn" 
-                    class="mt-4 bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700 text-white font-semibold px-5 py-2 rounded-xl shadow transition-all">
-                    + Add Another Variant
-                </button>
-            </div>
+        <button type="button" id="addVariantBtn"
+            class="bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700 text-white font-semibold px-5 py-2 rounded-xl shadow transition-all">
+            + Add Variant
+        </button>
+    </div>
+
+    <div id="variantsContainer" class="space-y-4"></div>
+</div>
+
+
+    {{-- Variant Row Template --}}
+<template id="variantTemplate">
+    <div class="variant-row flex flex-wrap gap-4 items-end bg-pink-50 border border-pink-100 p-4 rounded-xl">
+
+        <div class="flex-1 min-w-[180px]">
+            <label class="block text-gray-800 mb-2 font-semibold">Color Name</label>
+            <input type="text" data-name="color_name" placeholder="e.g., Red"
+                   class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-pink-400 p-2.5">
+        </div>
+
+        <div class="flex-1 min-w-[140px]">
+            <label class="block text-gray-800 mb-2 font-semibold">Color Code</label>
+            <input type="color" data-name="color_code"
+                   class="w-full h-10 border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-pink-400">
+        </div>
+
+        <div class="flex-1 min-w-[140px]">
+            <label class="block text-gray-800 mb-2 font-semibold">Stock</label>
+            <input type="number" data-name="stock" value="0"
+                   class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-pink-400 p-2.5">
+        </div>
+
+        <div class="flex-1 min-w-[180px]">
+            <label class="block text-gray-800 mb-2 font-semibold">Price Difference (EGP)</label>
+            <input type="number" step="0.01" data-name="price_difference" placeholder="e.g., +10"
+                   class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-pink-400 p-2.5">
+        </div>
+
+        <div class="flex-1 min-w-[180px]">
+            <label class="block text-gray-800 mb-2 font-semibold">Variant Image</label>
+            <input type="file" data-name="image" accept="image/*"
+                   class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-pink-400 p-2.5">
+        </div>
+
+        <button type="button"
+                class="removeVariant bg-red-500 hover:bg-red-600 text-white rounded-full w-8 h-8 flex items-center justify-center shadow-md mb-1">
+            ✕
+        </button>
+    </div>
+</template>
 
             {{-- Submit --}}
             <div class="text-right">
@@ -197,25 +219,29 @@
     document.getElementById('mainImage').addEventListener('change', e => previewImages(e.target, 'mainImagePreview'));
     document.getElementById('extraImages').addEventListener('change', e => previewImages(e.target, 'extraImagesPreview'));
 
-    // Add/Remove Variants
-    let variantIndex = 1;
-    document.getElementById('addVariantBtn').addEventListener('click', function () {
-        const container = document.getElementById('variantsContainer');
-        const newRow = container.firstElementChild.cloneNode(true);
-        newRow.querySelectorAll('input').forEach(input => {
-            input.value = '';
-            input.name = input.name.replace(/\d+/, variantIndex);
-        });
-        container.appendChild(newRow);
-        variantIndex++;
+    
+
+let variantIndex = 0;
+
+document.getElementById('addVariantBtn').addEventListener('click', function () {
+    const container = document.getElementById('variantsContainer');
+    const template = document.getElementById('variantTemplate');
+    const newRow = template.content.cloneNode(true);
+
+    newRow.querySelectorAll('input').forEach(input => {
+        const field = input.dataset.name;
+        input.name = `variants[${variantIndex}][${field}]`;
     });
 
-    document.addEventListener('click', e => {
-        if (e.target.classList.contains('removeVariant')) {
-            if (document.querySelectorAll('.variant-row').length > 1) {
-                e.target.closest('.variant-row').remove();
-            }
-        }
-    });
+    container.appendChild(newRow);
+    variantIndex++;
+});
+
+document.addEventListener('click', function (e) {
+    if (e.target.classList.contains('removeVariant')) {
+        e.target.closest('.variant-row').remove();
+    }
+});
+
 </script>
 @endsection

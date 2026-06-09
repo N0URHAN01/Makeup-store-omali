@@ -7,9 +7,15 @@ use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
+use App\Models\ProductVariant;
 use App\Models\Category;
 use App\Models\Governorate;
 use App\Enums\OrderStatus;
+use Barryvdh\DomPDF\Facade\Pdf;
+
+
+
+
 
 class OrderController extends Controller
 {
@@ -26,14 +32,47 @@ class OrderController extends Controller
     /* ==============================
         Orders List
     ===============================*/
-    public function index()
-    {
-        $orders = Order::with('items.product', 'governorate')
-            ->latest()
-            ->paginate(15);
 
-        return view('admin.orders.index', compact('orders'));
+    public function index(Request $request)
+{
+    $query = Order::with(['items.product', 'governorate']);
+
+    // SEARCH
+    if ($request->filled('search')) {
+        $search = $request->search;
+
+        $query->where(function ($q) use ($search) {
+            $q->where('order_code', 'like', "%{$search}%")
+              ->orWhere('customer_name', 'like', "%{$search}%")
+              ->orWhere('customer_phone1', 'like', "%{$search}%")
+              ->orWhere('customer_phone2', 'like', "%{$search}%");
+        });
     }
+
+    $orders = $query->latest()->paginate(15);
+
+    return view('admin.orders.index', compact('orders'));
+}
+    // public function index()
+    // {
+    //     $query = Order::with(['items.product', 'governorate']);
+
+    //      // SEARCH
+    // if ($request->filled('search')) {
+    //     $search = $request->search;
+
+    //     $query->where(function ($q) use ($search) {
+    //         $q->where('order_code', 'like', "%{$search}%")
+    //           ->orWhere('customer_name', 'like', "%{$search}%")
+    //           ->orWhere('customer_phone1', 'like', "%{$search}%")
+    //           ->orWhere('customer_phone2', 'like', "%{$search}%");
+    //     });
+    // }
+
+    // $orders = $query->latest()->paginate(15);
+
+    //     return view('admin.orders.index', compact('orders'));
+    // }
 
     /* ==============================
         Create Order
@@ -104,7 +143,7 @@ class OrderController extends Controller
     ===============================*/
     public function show($id)
     {
-        $order = Order::with('items.product', 'governorate')->findOrFail($id);
+        $order = Order::with('items.product', 'governorate' ,'items.variant')->findOrFail($id);
         return view('admin.orders.show', compact('order'));
     }
 
@@ -272,4 +311,20 @@ class OrderController extends Controller
             'total_price'   => $totalItems + $shipping,
         ]);
     }
+
+        /* ==============================
+            Export Order as PDF
+        ===============================*/
+        public function downloadPdf($id)
+{
+    $order = Order::with([
+        'items.product',
+        'items.variant',
+        'governorate'
+    ])->findOrFail($id);
+
+    $pdf = Pdf::loadView('admin.orders.pdf', compact('order'));
+
+    return $pdf->download('OM-ALI-ORDER-' . $order->order_code . '.pdf');
+}
 }

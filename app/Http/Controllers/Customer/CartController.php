@@ -194,21 +194,46 @@ public function add(Request $request)
         return back()->with('success', 'Cart updated ✅');
     }
 
+    // public function increment(Request $request)
+    // {
+    //     $data = $request->validate([
+    //         'key' => ['required','string'],
+    //     ]);
+
+    //     $cart = $this->cart();
+    //     if (!isset($cart[$data['key']])) return back();
+
+    //     $cart[$data['key']]['qty'] = min($cart[$data['key']]['qty'] + 1, (int)$cart[$data['key']]['stock']);
+
+    //     $this->saveCart($cart);
+    //     return back();
+    // }
+
     public function increment(Request $request)
-    {
-        $data = $request->validate([
-            'key' => ['required','string'],
-        ]);
+{
+    $data = $request->validate([
+        'key' => ['required','string'],
+    ]);
 
-        $cart = $this->cart();
-        if (!isset($cart[$data['key']])) return back();
+    $cart = $this->cart();
 
-        $cart[$data['key']]['qty'] = min($cart[$data['key']]['qty'] + 1, (int)$cart[$data['key']]['stock']);
-
-        $this->saveCart($cart);
-        return back();
+    if (!isset($cart[$data['key']])) {
+        return back()->with('error', 'Item not found.');
     }
 
+    $currentQty = (int) $cart[$data['key']]['qty'];
+    $stock = (int) $cart[$data['key']]['stock'];
+
+    if ($currentQty >= $stock) {
+        return back()->with('error', "Only {$stock} item(s) available in stock.");
+    }
+
+    $cart[$data['key']]['qty'] = $currentQty + 1;
+
+    $this->saveCart($cart);
+
+    return back();
+}
     public function decrement(Request $request)
     {
         $data = $request->validate([

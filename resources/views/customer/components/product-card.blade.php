@@ -3,8 +3,15 @@
     $hasDiscount = $product->discount_percentage > 0;
     $discountText = rtrim(rtrim(number_format($product->discount_percentage, 2), '0'), '.');
 
-    // FIX REAL LOGIC
-    $hasVariants = $product->variants
+    $hasVariants = $product->variants->count() > 0;
+
+    $availableStock = $hasVariants
+        ? $product->variants->sum('stock')
+        : $product->stock;
+
+    $inStock = $availableStock > 0;
+
+    $hasAvailableVariants = $product->variants
         ->whereNotNull('color_name')
         ->where('stock', '>', 0)
         ->count() > 0;
@@ -89,19 +96,17 @@
                 </span>
             @endif
         </div>
-
-        {{-- Stock --}}
-        <div class="mt-2 flex items-center gap-2 text-[11px] text-gray-500">
-            <span class="h-1.5 w-1.5 rounded-full {{ $product->stock > 0 ? 'bg-green-500' : 'bg-red-500' }}"></span>
-            {{ $product->stock > 0 ? 'In stock' : 'Out of stock' }}
-        </div>
+              {{-- Stock --}}
+             <div class="mt-2 flex items-center gap-2 text-[11px] text-gray-500">
+            <span class="h-1.5 w-1.5 rounded-full {{ $inStock ? 'bg-green-500' : 'bg-red-500' }}"></span>
+                 {{ $inStock ? 'In stock' : 'Out of stock' }}
+               </div>
 
         {{-- BUTTON --}}
         <div class="mt-auto pt-4">
 
-            @if($product->stock > 0)
-
-                @if($hasVariants)
+        @if($inStock)
+               @if($hasAvailableVariants)
 
                     {{-- CASE: HAS VARIANTS --}}
                     <a href="{{ route('products.show', $product->id) }}"
