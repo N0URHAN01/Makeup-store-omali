@@ -64,17 +64,65 @@ document.addEventListener('DOMContentLoaded', function () {
                     <span class="absolute left-0 -bottom-0.5 h-[2px] w-0 bg-pink-500 rounded-full transition-all duration-300 group-hover:w-full"></span>
                 </a>
 
-                <a href="#contact"
+                <a href="{{ route('categories.show', 'offers') }}"
                    class="relative py-2 hover:text-pink-600 transition group">
-                    Contact
+                    Offers
                     <span class="absolute left-0 -bottom-0.5 h-[2px] w-0 bg-pink-500 rounded-full transition-all duration-300 group-hover:w-full"></span>
                 </a>
 
             </div>
 
+
+            <form action="{{ route('search') }}"
+      method="GET"
+      class="hidden lg:flex items-center w-[280px]">
+
+    <div class="relative w-full">
+
+        <input type="text"
+               name="search"
+               value="{{ request('search') }}"
+               placeholder="Search products..."
+               class="w-full rounded-full border border-pink-100 bg-pink-50/70 px-4 py-2.5 pr-11 text-sm text-gray-800 placeholder-gray-400
+                      focus:border-pink-400 focus:ring-2 focus:ring-pink-100 outline-none transition">
+
+        <button type="submit"
+                class="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-pink-700 hover:bg-pink-800 text-white flex items-center justify-center transition">
+            <svg xmlns="http://www.w3.org/2000/svg"
+                 class="w-4 h-4"
+                 fill="none"
+                 viewBox="0 0 24 24"
+                 stroke="currentColor"
+                 stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 104.5 4.5a7.5 7.5 0 0012.15 12.15z" />
+            </svg>
+        </button>
+
+    </div>
+
+</form>
+
             {{-- ACTIONS --}}
             <div class="flex items-center gap-3">
 
+            {{-- MOBILE SEARCH ICON --}}
+<a href="{{ route('search') }}"
+   class="md:hidden inline-flex items-center justify-center w-11 h-11 rounded-full bg-pink-50 hover:bg-pink-100 border border-pink-100 transition">
+
+    <svg xmlns="http://www.w3.org/2000/svg"
+         class="h-5 w-5 text-gray-800"
+         fill="none"
+         viewBox="0 0 24 24"
+         stroke="currentColor"
+         stroke-width="2">
+
+        <path stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 104.5 4.5a7.5 7.5 0 0012.15 12.15z" />
+    </svg>
+
+</a>
                 {{-- CART --}}
                 <a href="{{ route('cart.index') }}"
                    class="relative inline-flex items-center justify-center w-11 h-11 rounded-full bg-pink-50 hover:bg-pink-100 border border-pink-100 transition group">
@@ -129,9 +177,10 @@ document.addEventListener('DOMContentLoaded', function () {
     </div>
 </nav>
 
+
+
 {{-- Push content below navbar --}}
 <div class="h-16"></div>
-
 {{-- OVERLAY --}}
 <div id="overlay"
      class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden z-40"></div>
@@ -153,7 +202,8 @@ document.addEventListener('DOMContentLoaded', function () {
             <span class="mt-1 text-[10px] tracking-[0.35em] uppercase font-bold text-pink-500">
                 Beauty Store
             </span>
-
+  
+            
         </a>
 
         <button id="closeMenu"
@@ -181,19 +231,21 @@ document.addEventListener('DOMContentLoaded', function () {
             <span class="text-pink-500">→</span>
         </a>
 
-        <a href="#categories"
+        <a href="{{ route('categories.index') }}"
            onclick="closeMenuFn()"
            class="flex items-center justify-between px-5 py-4 rounded-2xl bg-white border border-pink-100 hover:bg-pink-50 transition">
             <span>Categories</span>
             <span class="text-pink-500">→</span>
         </a>
 
-        <a href="#contact"
+        <a href="{{ route('categories.show', 'offers') }}"
            onclick="closeMenuFn()"
            class="flex items-center justify-between px-5 py-4 rounded-2xl bg-white border border-pink-100 hover:bg-pink-50 transition">
-            <span>Contact</span>
+            <span>Offers</span>
             <span class="text-pink-500">→</span>
         </a>
+
+        
 
         <a href="{{ route('cart.index') }}"
            onclick="closeMenuFn()"

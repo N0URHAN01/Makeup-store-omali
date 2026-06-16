@@ -37,8 +37,10 @@ Route::get('/categories/{slug}', [CustomerCategoryController::class, 'show'])
 
   //customer  Products
 Route::get('/products', [CustomerProductController::class, 'index'])->name('products.index');        // all products page
-Route::get('/products/{product}', [CustomerProductController::class, 'show'])->name('products.show'); // product details
+Route::get('/products/{product}', [CustomerProductController::class, 'show'])->name('products.show');
 Route::get('/products/{id}/variants', [ProductController::class, 'variants']);
+Route::get('/search', [CustomerProductController::class, 'search'])
+    ->name('search');
 
 // Order tracking
 Route::get('/order/track', [OrderTrackingController::class, 'index'])

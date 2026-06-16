@@ -250,36 +250,6 @@
                         </div>
                     @endif
 
-                    {{-- Quick perks --}}
-                    <div class="mt-6 grid grid-cols-3 gap-3">
-                        <div class="rounded-2xl bg-white border border-gray-100 px-3 py-3 text-center shadow-sm">
-                            <div class="text-lg">✨</div>
-                            <div class="mt-1 text-[11px] font-bold text-gray-700">Authentic</div>
-                        </div>
-
-                        <div class="rounded-2xl bg-white border border-gray-100 px-3 py-3 text-center shadow-sm">
-                            <div class="text-lg">🚚</div>
-                            <div class="mt-1 text-[11px] font-bold text-gray-700">Fast</div>
-                        </div>
-
-                        <div class="rounded-2xl bg-white border border-gray-100 px-3 py-3 text-center shadow-sm">
-                            <div class="text-lg">💵</div>
-                            <div class="mt-1 text-[11px] font-bold text-gray-700">
-                                Cash on Delivery
-                            </div>
-                        </div>
-                    </div>
-
-                    {{-- Description --}}
-                    @if($product->description)
-                        <div class="mt-7">
-                            <h3 class="text-sm font-extrabold text-gray-900">Description</h3>
-                            <p class="mt-2 text-sm leading-relaxed text-gray-600">
-                                {{ $product->description }}
-                            </p>
-                        </div>
-                    @endif
-
                     {{-- Actions --}}
                     <div class="mt-8 flex flex-col sm:flex-row gap-3">
 
@@ -297,8 +267,24 @@
                                     text-white font-bold py-3.5 shadow-lg shadow-pink-200/70
                                     transition duration-300 active:scale-[0.98]">
 
-                                    <span>🛍️</span>
-                                    Add to Cart
+              <svg xmlns="http://www.w3.org/2000/svg"
+     class="w-5 h-5"
+     fill="none"
+     viewBox="0 0 24 24"
+     stroke="currentColor"
+     stroke-width="2">
+
+    <path stroke-linecap="round"
+          stroke-linejoin="round"
+          d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-1.3 2.4a1 1 0 00.9 1.6H19"/>
+
+    <circle cx="9" cy="20" r="1.5"/>
+    <circle cx="18" cy="20" r="1.5"/>
+
+</svg>
+
+<span>Add to Cart</span>                      
+                                    
 
                                 </button>
                             </form>
@@ -323,7 +309,19 @@
                         Tip: Click the image to zoom and view details clearly.
                     </p>
 
-                </div>
+               
+
+                    {{-- Description --}}
+                    @if($product->description)
+                        <div class="mt-7">
+                            <h3 class="text-sm font-extrabold text-gray-900">Description</h3>
+                            <p class="mt-2 text-sm leading-relaxed text-gray-600">
+                                {{ $product->description }}
+                            </p>
+                        </div>
+                    @endif
+
+                    
             </div>
         </section>
 

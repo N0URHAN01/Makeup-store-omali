@@ -4,7 +4,7 @@ namespace App\Models;
 use App\Models\ProductImage;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-
+use Illuminate\Support\Str;
 class Product extends Model
 
 
@@ -14,6 +14,7 @@ class Product extends Model
 
     protected $fillable = [
        'name',
+        'slug',
         'product_code',
         'description',
         'price',
@@ -51,12 +52,30 @@ public function variants()
     return $this->hasMany(ProductVariant::class, 'product_id', 'id');
 }
 
+
 protected static function booted()
 {
+    static::creating(function ($product) {
+        if (empty($product->slug)) {
+            $product->slug = Str::slug($product->name);
+        }
+    });
+
+    static::updating(function ($product) {
+        if ($product->isDirty('name')) {
+            $product->slug = Str::slug($product->name);
+        }
+    });
+
     static::deleting(function ($product) {
         $product->variants()->delete();
         $product->images()->delete();
     });
+}
+
+public function getRouteKeyName()
+{
+    return 'slug';
 }
 
 }

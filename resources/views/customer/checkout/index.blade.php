@@ -176,26 +176,126 @@
   </div>
 </main>
 
-{{-- ================= MODAL ================= --}}
+{{-- ================= CONFIRM MODAL ================= --}}
 <div id="confirmModal"
-     class="fixed inset-0 hidden items-center justify-center bg-black/40 z-50">
+     class="fixed inset-0 hidden items-center justify-center bg-black/50 backdrop-blur-sm z-50 p-4">
 
-  <div class="bg-white rounded-2xl p-6 w-full max-w-md">
+    <div class="bg-white rounded-3xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl">
 
-    <h2 class="text-lg font-bold">Confirm your order?</h2>
-    <p class="text-sm text-gray-500 mt-2">Are you sure?</p>
+        {{-- HEADER --}}
+        <div class="p-6 border-b">
 
-    <div class="mt-4 flex gap-2">
-      <button onclick="closeModal()" class="flex-1 bg-gray-100 rounded-xl py-2">
-        Cancel
-      </button>
+            <h2 class="text-2xl font-extrabold text-gray-900">
+                Confirm Your Order
+            </h2>
 
-      <button onclick="submitOrder()" class="flex-1 bg-pink-600 text-white rounded-xl py-2">
-        Yes
-      </button>
+            <p class="text-sm text-gray-500 mt-1">
+                Please review your order before placing it.
+            </p>
+
+        </div>
+
+        {{-- PRODUCTS --}}
+        <div class="p-6">
+
+            <h3 class="font-bold text-gray-900 mb-4">
+                Order Summary
+            </h3>
+
+            <div class="space-y-4">
+
+                @foreach($cart as $item)
+
+                    <div class="flex items-center justify-between gap-3">
+
+                        <div class="flex items-center gap-3">
+
+                            <img src="{{ $item['image'] }}"
+                                 class="w-14 h-14 rounded-xl border object-cover">
+
+                            <div>
+
+                                <p class="font-semibold text-gray-900">
+                                    {{ $item['name'] }}
+                                </p>
+
+                                @if(!empty($item['variant_name']))
+                                    <div class="flex items-center gap-1 text-xs text-gray-500">
+
+                                        <span class="w-2.5 h-2.5 rounded-full border"
+                                              style="background: {{ $item['variant_color'] }}">
+                                        </span>
+
+                                        {{ $item['variant_name'] }}
+
+                                    </div>
+                                @endif
+
+                                <p class="text-xs text-gray-400">
+                                    Qty: {{ $item['qty'] }}
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                        <div class="font-semibold text-gray-800">
+                            {{ number_format($item['price'] * $item['qty'], 2) }} EGP
+                        </div>
+
+                    </div>
+
+                @endforeach
+
+            </div>
+
+            {{-- TOTALS --}}
+            <div class="mt-6 border-t pt-4 space-y-2">
+
+                <div class="flex justify-between text-sm">
+                    <span class="text-gray-600">Subtotal</span>
+                    <span>{{ number_format($subtotal,2) }} EGP</span>
+                </div>
+
+                <div class="flex justify-between text-sm">
+                    <span class="text-gray-600">Shipping</span>
+                    <span id="modal-shipping">
+                        0.00 EGP
+                    </span>
+                </div>
+
+                <div class="flex justify-between text-lg font-bold border-t pt-3 mt-3">
+                    <span>Total</span>
+                    <span id="modal-total">
+                        {{ number_format($subtotal,2) }} EGP
+                    </span>
+                </div>
+
+            </div>
+
+        </div>
+
+        {{-- ACTIONS --}}
+        <div class="p-6 border-t flex flex-col sm:flex-row gap-3">
+
+            <button onclick="closeModal()"
+                    class="flex-1 rounded-2xl bg-gray-100 hover:bg-gray-200 py-3 font-semibold transition">
+
+                Cancel
+
+            </button>
+
+            <button onclick="submitOrder()"
+                    class="flex-1 rounded-2xl bg-pink-700 hover:bg-pink-800 text-white py-3 font-semibold transition">
+
+                Place Order
+
+            </button>
+
+        </div>
+
     </div>
 
-  </div>
 </div>
 
 <script>
@@ -217,6 +317,8 @@ const gov = document.getElementById("governorate");
 const shippingRow = document.getElementById("shipping-row");
 const totalRow = document.getElementById("total-row");
 const shippingCostEl = document.getElementById("shipping-cost");
+const modalShipping = document.getElementById("modal-shipping");
+const modalTotal = document.getElementById("modal-total");
 const totalPriceEl = document.getElementById("total-price");
 
 const subtotal = {{ $subtotal }};
@@ -236,6 +338,13 @@ function updateTotal() {
     shippingCostEl.innerText = shipping.toFixed(2) + " EGP";
     totalPriceEl.innerText = total.toFixed(2) + " EGP";
 
+    if(modalShipping){
+    modalShipping.innerText = shipping.toFixed(2) + " EGP";
+}
+
+if(modalTotal){
+    modalTotal.innerText = total.toFixed(2) + " EGP";
+}
     shippingRow.classList.remove("hidden");
     totalRow.classList.remove("hidden");
 }

@@ -7,6 +7,7 @@ use App\Models\Product;
 use App\Models\Category;
 use App\Models\ProductImage;
 use App\Models\ProductVariant;
+use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
@@ -38,6 +39,31 @@ class ProductController extends Controller
         'success' => true,
         'variants' => $variants
     ]);
+}
+
+
+public function search(Request $request)
+{
+    $keyword = trim($request->search ?? '');
+
+    $products = collect();
+
+    if ($keyword !== '') {
+        $products = Product::with('category', 'variants')
+            ->where(function ($query) use ($keyword) {
+                $query->where('name', 'like', "%{$keyword}%")
+                    ->orWhere('description', 'like', "%{$keyword}%")
+                    ->orWhere('product_code', 'like', "%{$keyword}%")
+                    ->orWhereHas('category', function ($q) use ($keyword) {
+                        $q->where('name', 'like', "%{$keyword}%");
+                    });
+            })
+            ->latest()
+            ->paginate(24)
+            ->withQueryString();
+    }
+
+    return view('customer.products.search', compact('products', 'keyword'));
 }
 }
 

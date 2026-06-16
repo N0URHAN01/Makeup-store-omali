@@ -31,7 +31,7 @@
             <div class="pointer-events-none absolute -top-10 -left-10 h-40 w-40 rounded-full bg-pink-200/30 blur-3xl"></div>
             <div class="pointer-events-none absolute -bottom-12 -right-10 h-44 w-44 rounded-full bg-fuchsia-200/25 blur-3xl"></div>
 
-            <a href="{{ route('products.show', $product->id) }}" class="block w-full h-full">
+            <a href="{{ route('products.show', $product) }}" class="block w-full h-full">
                 @if($product->image)
                     <img src="{{ asset('storage/'.$product->image) }}"
                          alt="{{ $product->name }}"
@@ -51,7 +51,7 @@
                 </span>
             @endif
 
-            <a href="{{ route('products.show', $product->id) }}"
+            <a href="{{ route('products.show', $product) }}"
                class="hidden sm:flex absolute inset-x-4 bottom-4 items-center justify-center gap-2
                       opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0
                       transition-all duration-300
@@ -60,7 +60,7 @@
                 Quick view
             </a>
 
-            <a href="{{ route('products.show', $product->id) }}"
+            <a href="{{ route('products.show', $product) }}"
                class="sm:hidden absolute inset-x-4 bottom-4 text-center
                       bg-white/95 border border-gray-200 rounded-2xl py-2
                       text-xs font-semibold text-gray-900 shadow-sm">
@@ -73,7 +73,7 @@
     {{-- Content --}}
     <div class="px-4 pb-4 flex flex-col flex-1">
 
-        <a href="{{ route('products.show', $product->id) }}"
+        <a href="{{ route('products.show', $product) }}"
            class="text-sm sm:text-[15px] font-semibold text-gray-900 leading-snug
                   line-clamp-2 hover:text-pink-700 transition min-h-[44px]">
             {{ $product->name }}
@@ -109,7 +109,7 @@
                @if($hasAvailableVariants)
 
                     {{-- CASE: HAS VARIANTS --}}
-                    <a href="{{ route('products.show', $product->id) }}"
+                    <a href="{{ route('products.show', $product) }}"
                        class="w-full inline-flex items-center justify-center gap-2
                               rounded-2xl px-4 py-3
                               bg-gray-900 text-white text-sm font-semibold

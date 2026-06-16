@@ -1,11 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+     <link rel="icon" type="image/png" href="{{ asset('favicon-32x32.png') }}">
+<link rel="shortcut icon" href="{{ asset('favicon-32x32.png') }}">
 
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>@yield('title','Home')</title>
+<title>@yield('title', 'Om Ali Cosmetics | Makeup, Skincare & Perfumes')</title>
+
+<meta name="description" content="@yield('meta_description', 'Shop makeup, skincare, perfumes, haircare and beauty essentials from Om Ali Cosmetics with delivery across Egypt.')">
+
+<meta name="keywords" content="Om Ali, cosmetics Egypt, makeup Egypt, skincare Egypt, perfumes Egypt, beauty products, haircare, body care">
+
+<meta property="og:title" content="@yield('og_title', 'Om Ali Cosmetics')">
+<meta property="og:description" content="@yield('og_description', 'Premium makeup, skincare, perfumes and beauty essentials in Egypt.')">
+<meta property="og:image" content="@yield('og_image', asset('images/share-cover.png'))">
+<meta property="og:type" content="website">
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
 
     @vite('resources/css/app.css')
 
@@ -138,7 +151,25 @@
                     showToast("Added to cart successfully");
 
                     button.disabled = false;
-                    button.innerText = "Add to cart";
+                    button.innerHTML = `
+    <svg xmlns="http://www.w3.org/2000/svg"
+         class="w-5 h-5"
+         fill="none"
+         viewBox="0 0 24 24"
+         stroke="currentColor"
+         stroke-width="2">
+
+        <path stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-1.3 2.4a1 1 0 00.9 1.6H19"/>
+
+        <circle cx="9" cy="20" r="1.5"/>
+        <circle cx="18" cy="20" r="1.5"/>
+
+    </svg>
+
+    <span>Add to Cart</span>
+`;
 
                     if (typeof loadCartCount === "function") {
                         loadCartCount();
