@@ -122,6 +122,11 @@
                         </div>
 
                     </div>
+                    
+                    
+                    
+
+                          
                 </div>
             </div>
         </section>
@@ -136,53 +141,9 @@
                         {{ $product->name }}
                     </h1>
 
-                    {{-- Code + Stock --}}
-                    <div class="mt-3 flex flex-wrap items-center gap-2">
-
-                        <span class="inline-flex items-center gap-2 rounded-full bg-white border border-gray-100 px-3 py-1 text-xs font-semibold text-gray-600 shadow-sm">
-                            Code:
-                            <span class="font-mono">{{ $product->product_code }}</span>
-                        </span>
-
-                        <span class="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-bold border shadow-sm
-                            {{ $inStock ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-red-50 text-red-700 border-red-100' }}">
-
-                            <span class="h-1.5 w-1.5 rounded-full {{ $inStock ? 'bg-emerald-500' : 'bg-red-500' }}"></span>
-
-                            {{ $inStock ? 'In stock' : 'Out of stock' }}
-                        </span>
-
-                    </div>
-
-                    {{-- Price --}}
-                    <div class="mt-5">
-                        @if($hasDiscount)
-                            <div class="flex items-end gap-3">
-                                <div class="text-gray-400 line-through text-base sm:text-lg font-semibold">
-                                    {{ number_format($product->price, 2) }} EGP
-                                </div>
-
-                                <div class="text-2xl sm:text-3xl font-extrabold text-pink-700">
-                                    {{ number_format($product->discounted_price, 2) }} EGP
-                                </div>
-                            </div>
-
-                            <p class="mt-2 text-sm text-gray-500">
-                                You save
-                                <span class="font-bold text-pink-700">
-                                    {{ number_format($product->price - $product->discounted_price, 2) }} EGP
-                                </span>
-                            </p>
-                        @else
-                            <div class="text-2xl sm:text-3xl font-extrabold text-pink-700">
-                                {{ number_format($product->price, 2) }} EGP
-                            </div>
-                        @endif
-                    </div>
-
-                    {{-- ================= VARIANTS ================= --}}
+{{-- ================= VARIANTS ================= --}}
                     @if($hasVariants)
-                        <div class="mt-6">
+                        <div class="mt-6 pt-6 border-t border-pink-100">
                             <div class="flex items-center justify-between gap-3 mb-4">
                                 <h3 class="text-sm font-extrabold text-gray-900">
                                     Choose color
@@ -249,6 +210,120 @@
                             </p>
                         </div>
                     @endif
+
+                    {{-- Code + Stock --}}
+                    <div class="mt-3 flex flex-wrap items-center gap-2">
+
+                        <span class="inline-flex items-center gap-2 rounded-full bg-white border border-gray-100 px-3 py-1 text-xs font-semibold text-gray-600 shadow-sm">
+                            Code:
+                            <span class="font-mono">{{ $product->product_code }}</span>
+                        </span>
+
+                        <span class="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-bold border shadow-sm
+                            {{ $inStock ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-red-50 text-red-700 border-red-100' }}">
+
+                            <span class="h-1.5 w-1.5 rounded-full {{ $inStock ? 'bg-emerald-500' : 'bg-red-500' }}"></span>
+
+                            {{ $inStock ? 'In stock' : 'Out of stock' }}
+                        </span>
+
+                    </div>
+
+                    {{-- Price --}}
+                    <div class="mt-5">
+                        @if($hasDiscount)
+                            <div class="flex items-end gap-3">
+                                <div class="text-gray-400 line-through text-base sm:text-lg font-semibold">
+                                    {{ number_format($product->price, 2) }} EGP
+                                </div>
+
+                                <div class="text-2xl sm:text-3xl font-extrabold text-pink-700">
+                                    {{ number_format($product->discounted_price, 2) }} EGP
+                                </div>
+                            </div>
+
+                            <p class="mt-2 text-sm text-gray-500">
+                                You save
+                                <span class="font-bold text-pink-700">
+                                    {{ number_format($product->price - $product->discounted_price, 2) }} EGP
+                                </span>
+                            </p>
+                        @else
+                            <div class="text-2xl sm:text-3xl font-extrabold text-pink-700">
+                                {{ number_format($product->price, 2) }} EGP
+                            </div>
+                        @endif
+                    </div>
+
+                    {{-- ================= VARIANTS ================= --}}
+                    <!-- @if($hasVariants)
+                        <div class="mt-6">
+                            <div class="flex items-center justify-between gap-3 mb-4">
+                                <h3 class="text-sm font-extrabold text-gray-900">
+                                    Choose color
+                                </h3>
+
+                                <span class="text-[11px] font-medium text-gray-400">
+                                    Select available option
+                                </span>
+                            </div>
+
+                            <div class="flex flex-wrap gap-4" id="variantsContainer">
+
+                                @foreach($product->variants as $variant)
+
+                                    @php
+                                        $outOfStock = $variant->stock <= 0;
+                                    @endphp
+
+                                    <div class="variant-wrapper flex flex-col items-center gap-2">
+
+                                        <button type="button"
+                                            class="variant-btn group w-14 h-14 rounded-full border-2 overflow-hidden transition relative
+                                            {{ $outOfStock
+                                                ? 'border-gray-200 opacity-45 cursor-not-allowed grayscale'
+                                                : 'border-gray-200 hover:border-pink-700 hover:shadow-md'
+                                            }}"
+                                            data-id="{{ $variant->id }}"
+                                            data-image="{{ $variant->image ? asset('storage/'.$variant->image) : '' }}"
+                                            {{ $outOfStock ? 'disabled' : '' }}
+                                        >
+
+                                            @if($variant->image)
+                                                <img src="{{ asset('storage/'.$variant->image) }}"
+                                                     class="w-full h-full object-cover"
+                                                     alt="{{ $variant->color_name }}">
+                                            @else
+                                                <div class="w-full h-full"
+                                                     style="background-color: {{ $variant->color_code }}"></div>
+                                            @endif
+
+                                            @if($outOfStock)
+                                                <div class="absolute inset-0 bg-white/60 flex items-center justify-center">
+                                                    <span class="text-[10px] font-bold text-red-600">
+                                                        Out
+                                                    </span>
+                                                </div>
+                                            @endif
+
+                                        </button>
+
+                                        <span class="variant-name text-[11px] font-medium text-center
+                                            {{ $outOfStock ? 'text-red-500' : 'text-gray-500' }}">
+                                            {{ $variant->color_name }}
+                                        </span>
+
+                                    </div>
+
+                                @endforeach
+
+                            </div>
+
+                            <p id="variantError" class="text-red-500 text-xs mt-3 hidden">
+                                Please select an available color first.
+                            </p>
+                        </div>
+                    @endif -->
 
                     {{-- Actions --}}
                     <div class="mt-8 flex flex-col sm:flex-row gap-3">
