@@ -124,18 +124,20 @@ class ProductController extends Controller
     /**
      * Show the form for editing the specified product.
      */
-    public function edit(Product $product)
+    public function edit($product)
     {
+         $product = Product::with(['images', 'variants'])->findOrFail($product);
         $categories = Category::all();
-        $product->load(['images', 'variants']);
+       
         return view('admin.products.edit', compact('product', 'categories'));
     }
 
     /**
      * Update the specified product and its variants.
      */
-    public function update(Request $request, Product $product)
+    public function update(Request $request, $product)
     {
+        $product = Product::findOrFail($product);
         $request->validate([
             'name'                => 'required|string|max:255',
             'description'         => 'nullable|string',
@@ -153,7 +155,7 @@ class ProductController extends Controller
             'variants.*.image'    => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
-        // ✅ Replace main image if uploaded
+        // Replace main image if uploaded
         if ($request->hasFile('image')) {
             if ($product->image && Storage::disk('public')->exists($product->image)) {
                 Storage::disk('public')->delete($product->image);
@@ -161,7 +163,7 @@ class ProductController extends Controller
             $product->image = $request->file('image')->store('products', 'public');
         }
 
-        // ✅ Update product info
+        //  Update product info
         $product->update([
             'name' => $request->name,
             'description' => $request->description,
@@ -171,7 +173,7 @@ class ProductController extends Controller
             'category_id' => $request->category_id,
         ]);
 
-        // ✅ Add new additional images
+        // Add new additional images
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $img) {
                 $path = $img->store('products/multiple', 'public');
@@ -226,8 +228,9 @@ class ProductController extends Controller
     /**
      * Delete a product and all related images + variants.
      */
-    public function destroy(Product $product)
+    public function destroy($product)
     {
+        $product = Product::with(['images', 'variants'])->findOrFail($product);
         // main image
         if (!empty($product->image) && Storage::disk('public')->exists($product->image)) {
             Storage::disk('public')->delete($product->image);
