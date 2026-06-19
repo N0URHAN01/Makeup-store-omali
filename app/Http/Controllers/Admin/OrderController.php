@@ -11,7 +11,8 @@ use App\Models\ProductVariant;
 use App\Models\Category;
 use App\Models\Governorate;
 use App\Enums\OrderStatus;
-use Mpdf\Mpdf;
+use Barryvdh\DomPDF\Facade\Pdf;
+
 
 
 
@@ -323,20 +324,8 @@ class OrderController extends Controller
         'governorate'
     ])->findOrFail($id);
 
-    $html = view('admin.orders.pdf', compact('order'))->render();
+    $pdf = Pdf::loadView('admin.orders.pdf', compact('order'));
 
-    $mpdf = new Mpdf([
-        'mode' => 'utf-8',
-        'format' => 'A4',
-        'default_font' => 'dejavusans',
-        'autoScriptToLang' => true,
-        'autoLangToFont' => true,
-    ]);
-
-    $mpdf->WriteHTML($html);
-
-    return response($mpdf->Output('OM-ALI-ORDER-' . $order->order_code . '.pdf', 'S'))
-        ->header('Content-Type', 'application/pdf')
-        ->header('Content-Disposition', 'attachment; filename="OM-ALI-ORDER-' . $order->order_code . '.pdf"');
+    return $pdf->download('OM-ALI-ORDER-' . $order->order_code . '.pdf');
 }
 }
